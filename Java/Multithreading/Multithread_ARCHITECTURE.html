@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pricing ETL — Concurrent API Batch Pipeline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px;
+      color: #2d3748; line-height: 1.5; background: #fff;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; width: 100%;
+    }
+    .hdr { background: linear-gradient(135deg,#1a2e4a,#2b6cb0); color:#fff; padding:14px 18px 12px; border-radius:8px; margin-bottom:9px; }
+    .hdr h1 { font-size:20px; font-weight:700; margin-bottom:4px; }
+    .hdr p  { font-size:11px; opacity:0.88; margin-bottom:8px; }
+    .pills  { display:flex; flex-wrap:wrap; gap:4px; }
+    .pill   { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.35); border-radius:20px; padding:2px 8px; font-size:9px; font-weight:600; }
+    .card   { border:1px solid #d0dce8; border-radius:8px; padding:12px 14px; margin-bottom:8px; page-break-inside:avoid; background:#fff; }
+    .ctitle { font-size:13px; font-weight:700; color:#1a2e4a; border-bottom:2px solid #ebf4ff; padding-bottom:5px; margin-bottom:9px; display:flex; align-items:center; gap:7px; }
+    .num    { background:#2b6cb0; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    .box { border-radius:6px; padding:9px; }
+    .box h4 { font-size:10px; font-weight:700; color:#1a2e4a; margin-bottom:5px; }
+    .box ul { list-style:none; }
+    .box ul li { font-size:9px; color:#4a5568; padding:1.5px 0; border-bottom:1px solid rgba(0,0,0,0.05); }
+    .box ul li:last-child { border-bottom:none; }
+    .b-blue   { background:#ebf8ff; }
+    .b-purple { background:#faf5ff; }
+    .b-green  { background:#f0fff4; }
+    .b-side   { background:#f7fafc; border-left:3px solid #2b6cb0; border-radius:0 6px 6px 0; padding:8px 10px; }
+    .b-side .bt { font-size:9px; font-weight:700; color:#1a2e4a; margin-bottom:2px; }
+    .b-side .bd { font-size:8.5px; color:#4a5568; }
+    .desc  { font-size:11px; color:#4a5568; margin-bottom:8px; }
+    .small { font-size:9px; color:#718096; margin-top:4px; }
+    .flow  { background:#f7fafc; border:1px solid #d0dce8; border-radius:6px; padding:9px 11px; font-family:'Consolas','Courier New',monospace; font-size:8.5px; line-height:1.75; white-space:pre; overflow:hidden; margin-bottom:7px; }
+    .note  { background:#ebf8ff; border-left:3px solid #2b6cb0; border-radius:0 6px 6px 0; padding:7px 10px; font-size:10px; }
+    .note strong { color:#1a2e4a; }
+    .plist { list-style:none; }
+    .plist li { display:flex; gap:8px; padding:4px 0; border-bottom:1px solid #f0f4f8; }
+    .plist li:last-child { border-bottom:none; }
+    .plist .ic { font-size:11px; width:14px; flex-shrink:0; margin-top:1px; }
+    .plist strong { font-size:10px; color:#1a2e4a; display:block; }
+    .plist span   { font-size:9px; color:#4a5568; }
+    .tbl { width:100%; border-collapse:collapse; font-size:9.5px; }
+    .tbl th { background:#ebf4ff; color:#1a2e4a; font-weight:700; padding:5px 7px; text-align:left; border-bottom:2px solid #bee3f8; }
+    .tbl td { padding:4px 7px; border-bottom:1px solid #e2e8f0; vertical-align:top; }
+    .tbl tr:last-child td { border-bottom:none; }
+    .tbl td:first-child { font-weight:600; color:#2b6cb0; }
+    .techs { display:flex; flex-wrap:wrap; gap:4px; }
+    .tech  { background:#ebf4ff; color:#1a365d; border:1px solid #bee3f8; border-radius:12px; padding:2px 8px; font-size:9px; font-weight:600; }
+    .sm    { width:100%; border-collapse:separate; border-spacing:5px 0; table-layout:fixed; margin:8px 0 4px; }
+    .sm td.b  { border-radius:5px; text-align:center; padding:6px 2px; font-size:9px; font-weight:700; }
+    .sm td.ar { border:none; background:none; text-align:center; color:#a0aec0; font-size:8px; line-height:1.3; }
+    .s-blu { background:#ebf4ff; border:2px solid #bee3f8; color:#1a2e4a; }
+    .s-grn { background:#f0fff4; border:2px solid #9ae6b4; color:#276749; }
+    .s-red { background:#fff5f5; border:2px solid #feb2b2; color:#c0392b; }
+    .s-yel { background:#fffbeb; border:2px solid #f6e05e; color:#7b5e00; }
+    .thread-box { background:#f7fafc; border:1px solid #d0dce8; border-radius:6px; padding:10px 12px; }
+    .thread-box h4 { font-size:10px; font-weight:700; color:#1a2e4a; margin-bottom:6px; }
+    .thread-row { display:flex; gap:5px; margin-bottom:4px; }
+    .t-cell { border-radius:4px; padding:4px 7px; font-size:8.5px; font-weight:700; text-align:center; flex:1; }
+    .t-main { background:#ebf8ff; border:1px solid #bee3f8; color:#1a2e4a; }
+    .t-work { background:#faf5ff; border:1px solid #d6bcfa; color:#553c9a; }
+    .t-par  { background:#f0fff4; border:1px solid #9ae6b4; color:#276749; }
+    .t-lbl  { font-size:8px; color:#718096; font-weight:400; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <h1>Pricing ETL — Concurrent API Batch Pipeline</h1>
+  <p>Spring Batch single-step ETL that reads formula definitions from Oracle, expands them over a 30-day lookback, and fires concurrent HTTP POST requests to a pricing valuation API — Java 11 · Spring Boot 2.3 · Spring Batch · ThreadPoolTaskExecutor · Apache HttpClient</p>
+  <div class="pills">
+    <span class="pill">Java 11</span>
+    <span class="pill">Spring Boot 2.3</span>
+    <span class="pill">Spring Batch</span>
+    <span class="pill">Spring Data JPA</span>
+    <span class="pill">ThreadPoolTaskExecutor</span>
+    <span class="pill">Java Future API</span>
+    <span class="pill">Apache HttpClient 4.5</span>
+    <span class="pill">RestTemplate</span>
+    <span class="pill">Jackson</span>
+    <span class="pill">OpenCSV 5.7</span>
+    <span class="pill">Oracle JDBC (ojdbc8)</span>
+    <span class="pill">Lombok</span>
+  </div>
+</div>
+
+<!-- CARD 1: System Overview -->
+<div class="card">
+  <div class="ctitle"><span class="num">1</span> System Overview</div>
+  <p class="desc">A Spring Batch command-line ETL application that runs once on startup (CommandLineRunner). It reads pre-serialized pricing formula definitions from an Oracle staging table, expands each formula across up to 30 daily event dates, and submits each formula-date combination as a JSON POST to an external pricing valuation API using a ThreadPoolTaskExecutor (core 10, max 20 threads). Results — price, currency, UOM, status — are collected via a <code>List&lt;Future&gt;</code> and written to a CSV file. There is no scheduler, no message queue, and no retry framework — the batch executes, writes output, and exits.</p>
+  <div class="g3" style="margin-bottom:7px;">
+    <div class="box b-blue">
+      <h4>▲ Extract Layer</h4>
+      <ul>
+        <li>DatabaseItemReader — Spring Data JPA</li>
+        <li>Native SQL: SELECT * FROM staging table ORDER BY formulasetid</li>
+        <li>Entity: UsRackPricing (formulaId, serializedFormula, validFrom/To)</li>
+        <li>Oracle JDBC (ojdbc8) — Hikari connection pool</li>
+        <li>Returns full List&lt;UsRackPricing&gt; in one read</li>
+      </ul>
+    </div>
+    <div class="box b-purple">
+      <h4>▶ Transform &amp; Load — Concurrent</h4>
+      <ul>
+        <li>PricingItemProcessor: formula expansion + API calls</li>
+        <li>Group by formulaSetId; expand to 30-day date variants</li>
+        <li>Patch eventDate per day; re-serialize → HTTP POST body</li>
+        <li>Submit each as Callable to ThreadPoolTaskExecutor</li>
+        <li>Collect Future&lt;String&gt; → parse pricing response JSON</li>
+      </ul>
+    </div>
+    <div class="box b-green">
+      <h4>▼ Write Layer</h4>
+      <ul>
+        <li>CsvItemWriter — OpenCSV 5.7</li>
+        <li>Sort by FormulaId, then EventDate before write</li>
+        <li>Output: target/output.csv (overwritten each run)</li>
+        <li>Columns: FormulaId, FormulaSetVersion, Price, UOM, CCY, LastPricingDate, EventDate, Status, Details</li>
+        <li>No quote/escape — comma-delimited plain text</li>
+      </ul>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="b-side"><div class="bt">Thread Pool — ThreadPoolTaskExecutor</div><div class="bd">Core: 10 threads (always-alive). Max: 20 threads (burst capacity). Queue: LinkedBlockingQueue (unbounded). Thread name prefix: MyAPIThread-N. Rejection policy: AbortPolicy (throws on queue overflow).</div></div>
+    <div class="b-side"><div class="bt">Pricing API — JSON over HTTP POST</div><div class="bd">Endpoint: external pricing valuation RPC service. Content-Type: application/json. LaxRedirectStrategy on HttpClient (follows redirects on POST). No explicit timeout or retry configured — single-attempt per request.</div></div>
+    <div class="b-side"><div class="bt">Formula Date Expansion</div><div class="bd">For each formula, extract validFrom date. If within last 30 days (configurable: number.of.days), generate one CsvPricingModel per day from validFrom to today. Expansion ratio: up to ~30× records. Total API calls = formulaCount × matchingDays.</div></div>
+    <div class="b-side"><div class="bt">Custom JSON Deserialization</div><div class="bd">CustomObjectDeserializer handles polymorphic formula components via @JsonCreator. Two concrete types: IndexPrice-based and Quantity-based. Discriminated by JSON field presence at parse time.</div></div>
+  </div>
+</div>
+
+<!-- CARD 2: Concurrent API Request Lifecycle -->
+<div class="card">
+  <div class="ctitle"><span class="num">2</span> Concurrent API Request Lifecycle</div>
+  <div class="flow">Spring Boot startup → CommandLineRunner → JobLauncher.run("myJob", emptyParams)
+                                │
+                    DataProcessingTasklet.execute()
+                                │
+              ┌─────────────────┼──────────────────┐
+              ▼                 ▼                   ▼
+    DatabaseItemReader   PricingItemProcessor   CsvItemWriter
+              │
+              │  1. Read all rows from Oracle staging table
+              │     List&lt;UsRackPricing&gt; (serializedFormula per row)
+              │
+              │  2. processReadItems(): group by formulaSetId
+              │     for each formula where validFrom within 30 days:
+              │       for each day from validFrom → today:
+              │         parse + patch eventDate in serializedFormula JSON
+              │         create CsvPricingModel(formulaId, eventDate, updatedJson)
+              │
+              │  3. asynCallApi(): for each CsvPricingModel:
+              │       Future&lt;String&gt; f = threadPoolTaskExecutor.submit(Callable: {
+              │           return restTemplate.postForEntity(api.url, entity, String.class).getBody()
+              │       })
+              │       futures.add(f)                        ← up to 20 threads in flight
+              │
+              │       futures.parallelStream().forEach(future → {
+              │           raw = future.get()               ← BLOCKING per future
+              │           parse JSON response → extract price, status, details
+              │       })
+              │
+              └─→ CsvItemWriter: sort → write CSV headers → write rows → close</div>
+  <div class="note"><strong>Key design note:</strong> Futures are submitted in a loop, then consumed via <code>parallelStream().forEach(future.get())</code>. Each <code>get()</code> blocks the parallel-stream thread until its assigned API call completes — effectively: producer threads (MyAPIThread-N) run HTTP calls; consumer threads (ForkJoinPool) block on results. Up to 20 API calls can be in-flight simultaneously.</div>
+</div>
+
+<!-- CARD 3: Threading Architecture -->
+<div class="card">
+  <div class="ctitle"><span class="num">3</span> Threading Architecture</div>
+  <div class="g2" style="margin-bottom:8px;">
+    <div class="thread-box">
+      <h4>ThreadPoolTaskExecutor — API Worker Threads</h4>
+      <div class="thread-row">
+        <div class="t-cell t-main">Main Batch Thread<div class="t-lbl">submits Callables</div></div>
+        <div class="t-cell t-work">MyAPIThread-1<div class="t-lbl">HTTP POST</div></div>
+        <div class="t-cell t-work">MyAPIThread-2<div class="t-lbl">HTTP POST</div></div>
+        <div class="t-cell t-work">MyAPIThread-N…<div class="t-lbl">up to 20</div></div>
+      </div>
+      <div class="thread-row" style="margin-top:4px;">
+        <div class="t-cell t-par">ForkJoinPool-1<div class="t-lbl">parallelStream future.get()</div></div>
+        <div class="t-cell t-par">ForkJoinPool-2<div class="t-lbl">parallelStream future.get()</div></div>
+        <div class="t-cell t-par">ForkJoinPool-N<div class="t-lbl">blocks until done</div></div>
+      </div>
+    </div>
+    <table class="tbl" style="align-self:start;">
+      <tr><th>Setting</th><th>Value</th><th>Notes</th></tr>
+      <tr><td>corePoolSize</td><td>10</td><td>Always-alive threads (read from property)</td></tr>
+      <tr><td>maxPoolSize</td><td>20</td><td>Burst capacity under heavy load</td></tr>
+      <tr><td>queueType</td><td>LinkedBlockingQueue</td><td>Unbounded — no back-pressure</td></tr>
+      <tr><td>keepAlive</td><td>60s</td><td>Default JDK value</td></tr>
+      <tr><td>rejectionPolicy</td><td>AbortPolicy</td><td>Throws RejectedExecutionException</td></tr>
+      <tr><td>threadNamePrefix</td><td>MyAPIThread-</td><td>Visible in logs and thread dumps</td></tr>
+      <tr><td>Concurrency API</td><td>java.util.concurrent.Future</td><td>Legacy (not CompletableFuture)</td></tr>
+      <tr><td>Result collection</td><td>List&lt;Future&gt;</td><td>Manual accumulation per request</td></tr>
+    </table>
+  </div>
+  <div class="note"><strong>Concurrency model:</strong> Java <code>Callable&lt;String&gt;</code> submitted per formula-date unit to the executor. Results polled via <code>parallelStream().forEach(f.get())</code> — each parallel-stream thread blocks until its future resolves. No <code>CompletableFuture.allOf()</code>, no timeout on <code>get()</code>, no circuit breaker.</div>
+</div>
+
+<!-- CARD 4 REMOVED -->
+<div style="display:none">
+  <p class="desc">Single Oracle staging table acts as both source and contract. The <code>serializedFormula</code> column carries a pre-built JSON string conforming to the pricing API request schema — the processor deserializes it, patches the event date, and re-serializes for each daily variant.</p>
+  <div class="g2" style="margin-bottom:7px;">
+    <table class="tbl">
+      <tr><th colspan="3">Source Entity: Staging Table</th></tr>
+      <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
+      <tr><td>formulaId</td><td>int (PK)</td><td>Unique formula identifier</td></tr>
+      <tr><td>formulaSetId</td><td>String</td><td>Grouping key for expansion</td></tr>
+      <tr><td>formulaSetVersion</td><td>String</td><td>Version label written to CSV</td></tr>
+      <tr><td>serializedFormula</td><td>String (JSON)</td><td>Pre-built API request body — patched per event date</td></tr>
+      <tr><td>validFrom / validTo</td><td>Date</td><td>Controls 30-day expansion window</td></tr>
+    </table>
+    <table class="tbl">
+      <tr><th colspan="3">Output Model: CSV Row</th></tr>
+      <tr><th>Column</th><th>Source</th><th>Notes</th></tr>
+      <tr><td>FormulaId</td><td>entity.formulaId</td><td>Sort key 1</td></tr>
+      <tr><td>EventDate</td><td>expanded date</td><td>Sort key 2</td></tr>
+      <tr><td>Price / UOM / CCY</td><td>response.price.*</td><td>API response fields</td></tr>
+      <tr><td>LastPricingDate</td><td>response.lastPricingDay</td><td>Converted to YYYY-MM-DD</td></tr>
+      <tr><td>ResponseStatus</td><td>response.error</td><td>"Success" / "Failure"</td></tr>
+      <tr><td>ResponseDetails</td><td>error ?? warning</td><td>Error message or warning text</td></tr>
+    </table>
+  </div>
+  <div class="g2">
+    <table class="tbl">
+      <tr><th colspan="2">API Request Structure (JupiterRequest)</th></tr>
+      <tr><td>FormulaValuationRequest</td><td>Top-level wrapper</td></tr>
+      <tr><td>Formula</td><td>Expression, schedule flag, components[]</td></tr>
+      <tr><td>EventDate</td><td>EventValuationDay {year, month, day} — patched per variant</td></tr>
+      <tr><td>ValuationLogicalDay</td><td>EventValuationDay — matches EventDate</td></tr>
+    </table>
+    <table class="tbl">
+      <tr><th colspan="2">API Response Structure (JupiterResponse)</th></tr>
+      <tr><td>Price {value, ccy, uom}</td><td>Core pricing output</td></tr>
+      <tr><td>LastPricingDay</td><td>EventValuationDay struct</td></tr>
+      <tr><td>Error / Warning</td><td>Nullable — drives ResponseStatus</td></tr>
+      <tr><td>InstanceName, SnapshotId</td><td>Metadata (not written to CSV)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- CARD 4: Key Architecture Patterns -->
+<div class="card">
+  <div class="ctitle"><span class="num">4</span> Key Architecture Patterns</div>
+  <ul class="plist">
+    <li><span class="ic">⚡</span><div><strong>Fork-Join via ThreadPoolTaskExecutor + Future</strong><span>Main thread submits one Callable per formula-date to the executor (fork). A parallelStream over the futures list then blocks on each result (join). Up to 20 API calls execute concurrently. No CompletableFuture — legacy java.util.concurrent.Future with manual list management.</span></div></li>
+    <li><span class="ic">📅</span><div><strong>Time-Windowed Record Expansion</strong><span>One source formula row expands to N output records by iterating daily from validFrom to today (bounded by number.of.days property). The serializedFormula JSON is parsed, eventDate field patched in-memory, and re-serialized — reusing the pre-built request structure without regenerating it from scratch.</span></div></li>
+    <li><span class="ic">🗄️</span><div><strong>Staging Table as API Request Store</strong><span>serializedFormula column in Oracle stores a pre-serialized JSON API request body. The ETL treats the DB as both a formula registry and a request cache — processors only patch the mutable date field, avoiding full request reconstruction per row.</span></div></li>
+    <li><span class="ic">🔁</span><div><strong>Tasklet over Chunk-Oriented Step</strong><span>Spring Batch step uses Tasklet (single execute() call) rather than chunk-oriented (read-process-write with commit interval). This is intentional: the entire dataset is read at once, processed in-memory with async API calls, then written in one pass — no mid-batch checkpointing needed.</span></div></li>
+    <li><span class="ic">🔀</span><div><strong>Polymorphic JSON Deserialization</strong><span>CustomObjectDeserializer uses @JsonCreator to discriminate between two formula component types (IndexPrice vs Quantity) based on JSON field presence. Jackson resolves the concrete type at parse time — no manual type switching in business logic.</span></div></li>
+    <li><span class="ic">🌎</span><div><strong>Property-Driven Concurrency Tuning</strong><span>thread.core.pool.size, thread.max.pool.size, number.of.days and jupiter.api.url are all externalized to application.properties. Thread pool and expansion window can be adjusted per environment without code change or rebuild.</span></div></li>
+  </ul>
+</div>
+
+<!-- CARD 5: Architecture Decisions -->
+<div class="card">
+  <div class="ctitle"><span class="num">5</span> Architecture Decisions</div>
+  <table class="tbl">
+    <tr><th>Decision</th><th>Choice</th><th>Rationale</th></tr>
+    <tr><td>Batch framework</td><td>Spring Batch — single Tasklet step</td><td>Provides job execution lifecycle, status tracking, and clean CommandLineRunner entry point. Tasklet preferred over chunk because the workload is monolithic — one atomic read-expand-call-write cycle, not a streaming pipeline.</td></tr>
+    <tr><td>Concurrency API</td><td>java.util.concurrent.Future + ThreadPoolTaskExecutor</td><td>Straightforward submit-then-collect pattern that matches the all-at-once submission model. No reactive stream or CompletableFuture chaining needed since all futures are collected before any result is processed.</td></tr>
+    <tr><td>HTTP client</td><td>RestTemplate + Apache HttpClient 4.5 (LaxRedirectStrategy)</td><td>RestTemplate is the standard synchronous client in Spring Boot 2.x. LaxRedirectStrategy required because the upstream API may issue HTTP 302 on POST — default HttpClient would drop the body on redirect.</td></tr>
+    <tr><td>Result collection pattern</td><td>List&lt;Future&gt; + parallelStream().forEach(get())</td><td>Simple and readable — all futures submitted first (maximising concurrency window), then consumed. parallelStream provides additional parallelism for JSON deserialization after network I/O completes.</td></tr>
+    <tr><td>Output format</td><td>CSV via OpenCSV — file overwritten each run</td><td>Downstream consumers expect flat CSV. Run-level idempotency: output.csv is always a complete, fresh snapshot of the latest pricing run — no append, no partitioning.</td></tr>
+    <tr><td>No retry / timeout</td><td>Single-attempt per API call, no timeout on future.get()</td><td>Batch is designed for a controlled internal environment where API availability is assumed. Unlimited future.get() keeps the batch alive until all responses arrive — failure propagates as exception and aborts the step.</td></tr>
+  </table>
+</div>
+
+<!-- CARD 6: Technology Stack -->
+<div class="card">
+  <div class="ctitle"><span class="num">6</span> Technology Stack</div>
+  <div class="techs">
+    <span class="tech">Java 11</span>
+    <span class="tech">Spring Boot 2.3.12</span>
+    <span class="tech">Spring Batch 4.3.x</span>
+    <span class="tech">Spring Data JPA</span>
+    <span class="tech">Spring ORM / Hibernate</span>
+    <span class="tech">ThreadPoolTaskExecutor</span>
+    <span class="tech">java.util.concurrent.Future</span>
+    <span class="tech">java.util.concurrent.Callable</span>
+    <span class="tech">parallelStream (ForkJoinPool)</span>
+    <span class="tech">RestTemplate</span>
+    <span class="tech">Apache HttpClient 4.5.13</span>
+    <span class="tech">HttpComponentsClientHttpRequestFactory</span>
+    <span class="tech">LaxRedirectStrategy</span>
+    <span class="tech">Jackson 2.10 (ObjectMapper)</span>
+    <span class="tech">@JsonCreator polymorphic binding</span>
+    <span class="tech">OpenCSV 5.7.1</span>
+    <span class="tech">Oracle JDBC ojdbc8 21.1</span>
+    <span class="tech">HikariCP (default pool)</span>
+    <span class="tech">Lombok 1.18.26</span>
+    <span class="tech">Logback (rolling file appender)</span>
+    <span class="tech">SLF4J MDC</span>
+  </div>
+</div>
+
+</body>
+</html>
