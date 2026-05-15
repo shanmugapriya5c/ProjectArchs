@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SOAP-to-REST Gateway — Multi-Module Proxy Integration Service</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px;
+      color: #2d3748; line-height: 1.5; background: #fff;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; width: 100%;
+    }
+    .hdr { background: linear-gradient(135deg,#1a2e4a,#2b6cb0); color:#fff; padding:14px 18px 12px; border-radius:8px; margin-bottom:9px; }
+    .hdr h1 { font-size:20px; font-weight:700; margin-bottom:4px; }
+    .hdr p  { font-size:11px; opacity:0.88; margin-bottom:8px; }
+    .pills  { display:flex; flex-wrap:wrap; gap:4px; }
+    .pill   { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.35); border-radius:20px; padding:2px 8px; font-size:9px; font-weight:600; }
+    .card   { border:1px solid #d0dce8; border-radius:8px; padding:12px 14px; margin-bottom:8px; page-break-inside:avoid; background:#fff; }
+    .ctitle { font-size:13px; font-weight:700; color:#1a2e4a; border-bottom:2px solid #ebf4ff; padding-bottom:5px; margin-bottom:9px; display:flex; align-items:center; gap:7px; }
+    .num    { background:#2b6cb0; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    .g6 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+    .box { border-radius:6px; padding:9px; }
+    .box h4 { font-size:10px; font-weight:700; color:#1a2e4a; margin-bottom:5px; }
+    .box ul { list-style:none; }
+    .box ul li { font-size:9px; color:#4a5568; padding:1.5px 0; border-bottom:1px solid rgba(0,0,0,0.05); }
+    .box ul li:last-child { border-bottom:none; }
+    .b-blue   { background:#ebf8ff; }
+    .b-purple { background:#faf5ff; }
+    .b-green  { background:#f0fff4; }
+    .b-side   { background:#f7fafc; border-left:3px solid #2b6cb0; border-radius:0 6px 6px 0; padding:8px 10px; }
+    .b-side .bt { font-size:9px; font-weight:700; color:#1a2e4a; margin-bottom:2px; }
+    .b-side .bd { font-size:8.5px; color:#4a5568; }
+    .desc  { font-size:11px; color:#4a5568; margin-bottom:8px; }
+    .small { font-size:9px; color:#718096; margin-top:4px; }
+    .flow  { background:#f7fafc; border:1px solid #d0dce8; border-radius:6px; padding:9px 11px; font-family:'Consolas','Courier New',monospace; font-size:8.5px; line-height:1.75; white-space:pre; overflow:hidden; margin-bottom:7px; }
+    .note  { background:#ebf8ff; border-left:3px solid #2b6cb0; border-radius:0 6px 6px 0; padding:7px 10px; font-size:10px; }
+    .note strong { color:#1a2e4a; }
+    .plist { list-style:none; }
+    .plist li { display:flex; gap:8px; padding:4px 0; border-bottom:1px solid #f0f4f8; }
+    .plist li:last-child { border-bottom:none; }
+    .plist .ic { font-size:11px; width:14px; flex-shrink:0; margin-top:1px; }
+    .plist strong { font-size:10px; color:#1a2e4a; display:block; }
+    .plist span   { font-size:9px; color:#4a5568; }
+    .tbl { width:100%; border-collapse:collapse; font-size:9.5px; }
+    .tbl th { background:#ebf4ff; color:#1a2e4a; font-weight:700; padding:5px 7px; text-align:left; border-bottom:2px solid #bee3f8; }
+    .tbl td { padding:4px 7px; border-bottom:1px solid #e2e8f0; vertical-align:top; }
+    .tbl tr:last-child td { border-bottom:none; }
+    .tbl td:first-child { font-weight:600; color:#2b6cb0; }
+    .job   { background:#f7fafc; border:1px solid #e2e8f0; border-radius:6px; padding:9px; }
+    .jname { font-size:10px; font-weight:700; color:#2b6cb0; margin-bottom:3px; }
+    .jtag  { display:inline-block; background:#ebf4ff; border-radius:10px; padding:1px 7px; font-size:8px; font-weight:600; color:#2b6cb0; margin-bottom:4px; }
+    .jdesc { font-size:9px; color:#4a5568; line-height:1.5; }
+    .obs   { background:#f7fafc; border:1px solid #e2e8f0; border-radius:6px; padding:9px; }
+    .otitle { font-size:10px; font-weight:700; color:#2b6cb0; margin-bottom:3px; }
+    .odesc  { font-size:9px; color:#4a5568; }
+    .techs { display:flex; flex-wrap:wrap; gap:4px; }
+    .tech  { background:#ebf4ff; color:#1a365d; border:1px solid #bee3f8; border-radius:12px; padding:2px 8px; font-size:9px; font-weight:600; }
+    .pipe  { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; margin-bottom:5px; }
+    .pipe td.s  { background:#ebf4ff; border:2px solid #bee3f8; border-radius:5px; text-align:center; padding:6px 3px; font-size:9px; font-weight:700; color:#1a2e4a; }
+    .pipe td.s.m{ background:#fffbeb; border-color:#f6e05e; color:#7b5e00; }
+    .pipe td.a  { border:none; background:none; text-align:center; color:#a0aec0; font-size:10px; }
+    .pipe td.lb { border:none; background:none; text-align:center; font-size:8px; color:#718096; padding:2px 0 0; }
+    .sm    { width:100%; border-collapse:separate; border-spacing:5px 0; table-layout:fixed; margin:8px 0 4px; }
+    .sm td.b  { border-radius:5px; text-align:center; padding:6px 2px; font-size:9px; font-weight:700; }
+    .sm td.ar { border:none; background:none; text-align:center; color:#a0aec0; font-size:8px; line-height:1.3; }
+    .s-pur { background:#faf5ff; border:2px solid #d6bcfa; color:#553c9a; }
+    .s-blu { background:#ebf4ff; border:2px solid #bee3f8; color:#1a2e4a; }
+    .s-grn { background:#f0fff4; border:2px solid #9ae6b4; color:#276749; }
+    .s-red { background:#fff5f5; border:2px solid #feb2b2; color:#c0392b; }
+    .s-gry { background:#f7fafc; border:2px solid #e2e8f0; color:#718096; }
+    .s-yel { background:#fffbeb; border:2px solid #f6e05e; color:#7b5e00; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <h1>SOAP-to-REST Gateway — Multi-Module Proxy Integration Service</h1>
+  <p>Code-generated REST proxy adapters bridging a legacy SOAP backend to modern REST consumers — Java 17 · Spring Boot 3.3 · Apache CXF 3.5 · JAXB/JAXWS · XSLT code generation · EhCache 3</p>
+  <div class="pills">
+    <span class="pill">Java 17</span>
+    <span class="pill">Spring Boot 3.3</span>
+    <span class="pill">Apache CXF 3.5</span>
+    <span class="pill">JAXB / JAXWS</span>
+    <span class="pill">Spring WS</span>
+    <span class="pill">XSLT Code Generation</span>
+    <span class="pill">EhCache 3</span>
+    <span class="pill">Springdoc OpenAPI 2.6</span>
+    <span class="pill">Micrometer Prometheus</span>
+    <span class="pill">OpenTelemetry</span>
+    <span class="pill">MapStruct 1.5</span>
+    <span class="pill">GitLab CI</span>
+    <span class="pill">Ansible</span>
+    <span class="pill">Docker / Jib</span>
+  </div>
+</div>
+
+<!-- CARD 1: System Overview -->
+<div class="card">
+  <div class="ctitle"><span class="num">1</span> System Overview</div>
+  <p class="desc">A multi-module Maven project that exposes five independently deployable Spring Boot microservices (ports 9190–9194), each acting as a SOAP-to-REST proxy adapter. REST clients POST JSON payloads; each service converts them to SOAP XML via JAXB marshalling, calls the appropriate backend SOAP service using Apache CXF / Spring WS, and returns the response as JSON. REST controllers are entirely <strong>auto-generated at build time</strong> from WSDL files using an in-project XSLT code-generation engine — no hand-written proxy code required. A shared framework library provides the base adapter, authentication, caching, and observability concerns.</p>
+  <div class="g3" style="margin-bottom:7px;">
+    <div class="box b-blue">
+      <h4>▲ REST Inbound Layer</h4>
+      <ul>
+        <li>Auto-generated @RestController (per WSDL)</li>
+        <li>@RequestMapping POST per SOAP operation</li>
+        <li>@RequestHeader HTTP header extraction</li>
+        <li>@RequestBody JSON → JAXB object (Jackson)</li>
+        <li>@Timed Micrometer metric per endpoint</li>
+        <li>Springdoc OpenAPI → Swagger UI</li>
+      </ul>
+    </div>
+    <div class="box b-purple">
+      <h4>▶ Adapter / Translation Layer</h4>
+      <ul>
+        <li>WebserviceProxyAdaptor (base class)</li>
+        <li>JAXB Jaxb2Marshaller (JSON ↔ SOAP XML)</li>
+        <li>HTTP header → SOAP MessageCallback</li>
+        <li>CacheKeeper: SRD user SID lookup (EhCache)</li>
+        <li>MDC logging (ContextId + User)</li>
+        <li>SoapFaultClientException → JSON error</li>
+      </ul>
+    </div>
+    <div class="box b-green">
+      <h4>▼ SOAP Outbound Layer</h4>
+      <ul>
+        <li>Apache CXF JAXWS client stubs</li>
+        <li>Spring WS WebServiceTemplate</li>
+        <li>LoggingClientInterceptor (SOAP envelope log)</li>
+        <li>Logistics Query SOAP (port 9190)</li>
+        <li>Logistics Update SOAP (port 9191)</li>
+        <li>Search / Cost / Finance Settlement SOAPs</li>
+      </ul>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="b-side"><div class="bt">XSLT Code Generation Engine</div><div class="bd">GeneratorMain.java runs at generate-sources phase. Reads each .wsdl → extracts namespace, portType, operations → applies service-specific .xslt template → emits a fully compilable Java @RestController. No manual proxy code ever written.</div></div>
+    <div class="b-side"><div class="bt">Shared Framework Library</div><div class="bd">lib/architecture/framework (framework-titanwebuigateway) is a Maven dependency embedded in every service JAR. Provides WebserviceProxyAdaptor, CacheKeeper, LoggingClientInterceptor and Spring Boot auto-configuration for cache and metrics.</div></div>
+    <div class="b-side"><div class="bt">Header-Based Authentication</div><div class="bd">REST clients pass UserName header. WebserviceProxyAdaptor calls CacheKeeper → Reference Data Service REST API to resolve Active Directory SID. SID is concatenated into the SOAP user header. EhCache caches SID per username for 1 hour.</div></div>
+    <div class="b-side"><div class="bt">Independent Service Topology</div><div class="bd">Five services each build as a separate Spring Boot fat JAR + Docker image via Jib. Each runs on its own port and is deployed, scaled, and versioned independently. No shared runtime state between services.</div></div>
+  </div>
+</div>
+
+<!-- CARD 2: Request Lifecycle -->
+<div class="card">
+  <div class="ctitle"><span class="num">2</span> SOAP-to-REST Proxy Request Lifecycle</div>
+  <div class="flow">REST Client ──POST /ProxyService/operation──► @RestController (Generated)
+                                               │
+        Jackson deserializes JSON body → JAXB Input type
+                                               │
+                           WebserviceProxyAdaptor.addRequiredHeaders()
+                             ├─ Extract: UserName, ContextId, ServiceCallContextId headers
+                             ├─ CacheKeeper.getUserSidFromSRD(userName) ──► EhCache lookup
+                             │     └─ [MISS] → Reference Data REST API → cache SID (3600s TTL)
+                             └─ Build WebServiceMessageCallback (inject headers into SOAP envelope)
+                                               │
+                              Jaxb2Marshaller.marshal(Input) → SOAP XML envelope
+                                               │
+                              WebServiceTemplate.marshalSendAndReceive(url, request, callback)
+                                               │
+                              LoggingClientInterceptor ──► logs SOAP envelope (DEBUG)
+                                               │
+             ┌─────────────────────────────────┴──────────────────────────────────┐
+             ▼                                                                      ▼
+    SOAP Backend Service                                              SoapFaultClientException
+    (returns SOAP XML response)                                           │
+             │                                                   HTTP 400 + ServiceResponsePayload
+    Jaxb2Marshaller.unmarshal() → JAXB Output type                      (error JSON)
+             │
+    ServiceResponsePayload&lt;Output&gt; → Jackson → JSON response → REST Client</div>
+  <div class="note"><strong>Key design note:</strong> The XSLT template hardcodes the Jaxb2Marshaller package path and WebServiceTemplate URL property key per service, so each generated controller is entirely self-contained — the code generator produces both the @RestController and the Spring WS wiring in a single pass.</div>
+</div>
+
+<!-- CARD 3: Code Generation Engine -->
+<div class="card">
+  <div class="ctitle"><span class="num">3</span> XSLT Build-Time Code Generation</div>
+  <div class="g3">
+    <div class="job">
+      <div class="jname">Phase 1 — generate-sources</div>
+      <div class="jtag">exec-maven-plugin</div>
+      <div class="jdesc">GeneratorMain.java invoked. Reads packageMapping.dat to map each WSDL filename to a Java package and a Spring property key for the backend URL. Scans src/main/resources/wsdl/ for all .wsdl files.</div>
+    </div>
+    <div class="job">
+      <div class="jname">Phase 2 — XSLT Transformation</div>
+      <div class="jtag">JAXP / TransformerFactory</div>
+      <div class="jdesc">For each WSDL: parses XML DOM to extract targetNamespace, portType name, and all operation elements. Applies the matching .xslt template (one per service WSDL) via javax.xml.transform. Outputs Java source string.</div>
+    </div>
+    <div class="job">
+      <div class="jname">Phase 3 — Compilation</div>
+      <div class="jtag">fmt-maven-plugin + javac</div>
+      <div class="jdesc">Generated Java files written to target/generated-sources/titanweb/. google-java-format formats code. Maven compile phase picks up generated sources alongside hand-written Config.java. Final JAR contains all proxy classes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CARD 4: Key Architecture Patterns -->
+<div class="card">
+  <div class="ctitle"><span class="num">4</span> Key Architecture Patterns</div>
+  <ul class="plist">
+    <li><span class="ic">⚙️</span><div><strong>XSLT-Driven Code Generation (build-time)</strong><span>WSDL files are the single source of truth. The GeneratorMain + XSLT templates produce @RestController Java classes during generate-sources. Adding a new SOAP operation requires only a WSDL change — no hand-written controller code, ever.</span></div></li>
+    <li><span class="ic">🔁</span><div><strong>Adapter Pattern — WebserviceProxyAdaptor</strong><span>All generated controllers extend a single base class that handles the entire cross-cutting concern stack: header extraction, SID resolution, JAXB marshalling, WebServiceTemplate call, error mapping, and MDC population. Each proxy method only defines its typed request/response.</span></div></li>
+    <li><span class="ic">💾</span><div><strong>Cache-Aside (EhCache 3) — User SID Lookup</strong><span>CacheKeeper.getUserSidFromSRD() is annotated @Cacheable. EhCache stores username→SID mappings in-heap (10 entries) + off-heap (10 MB) with a 3600s TTL. Eliminates SRD round-trip on every request for active users.</span></div></li>
+    <li><span class="ic">📡</span><div><strong>Header Tunnelling — HTTP to SOAP</strong><span>Authorization, ServiceCallContextId, ContextId, UserName, and DesktopVersion HTTP headers are forwarded into SOAP envelopes via WebServiceMessageCallback. Preserves end-to-end request context without modifying SOAP service contracts.</span></div></li>
+    <li><span class="ic">🛡</span><div><strong>Protocol Error Normalisation</strong><span>SoapFaultClientException caught in every generated proxy method and converted to a JSON ServiceResponsePayload with HTTP 400. REST consumers never see raw SOAP fault XML — they always receive structured JSON errors.</span></div></li>
+    <li><span class="ic">📦</span><div><strong>Shared Library via Maven Dependency</strong><span>framework-titanwebuigateway is a Maven artifact published to the corporate registry. All five services depend on it identically. Framework upgrades (auth, caching, interceptors) propagate to all services with a single version bump.</span></div></li>
+    <li><span class="ic">📊</span><div><strong>@Timed per Operation (Micrometer)</strong><span>Every generated proxy method is annotated @Timed(value="ServiceName_operationName"). TimedAspect bean (registered in framework) records latency histograms per SOAP operation. Metrics exposed at /actuator/prometheus.</span></div></li>
+    <li><span class="ic">🌎</span><div><strong>Static Username Fallback Mode</strong><span>titan.static.username.enabled=true bypasses SRD lookup and uses a hardcoded username+SID. Used in environments where SRD is unavailable (e.g., DEV integration testing) without changing application logic.</span></div></li>
+  </ul>
+</div>
+
+<!-- CARD 5: Architecture Decisions -->
+<div class="card">
+  <div class="ctitle"><span class="num">5</span> Architecture Decisions</div>
+  <table class="tbl">
+    <tr><th>Decision</th><th>Choice</th><th>Rationale</th></tr>
+    <tr><td>Proxy controller generation</td><td>XSLT at build time (generate-sources)</td><td>WSDL is the authoritative contract. XSLT keeps 100% fidelity to WSDL operations — no drift between spec and implementation. Generated code is plain Java, fully debuggable.</td></tr>
+    <tr><td>SOAP client technology</td><td>Apache CXF 3.5 + Spring WS WebServiceTemplate</td><td>CXF provides mature WSDL→Java stub generation (cxf-codegen-plugin). Spring WS WebServiceTemplate adds interceptor support (logging) and Jaxb2Marshaller integration without boilerplate.</td></tr>
+    <tr><td>XML ↔ Object binding</td><td>JAXB (Jakarta XML Bind 4.0)</td><td>Required for Java 17 (javax.* removed). Jaxb2Marshaller configured per service with package path derived from packageMapping.dat — keeps marshaller scoped to each WSDL's generated stubs.</td></tr>
+    <tr><td>Date type handling</td><td>LocalDateAdapter + XMLGregorianCalendar adapters</td><td>SOAP services return XMLGregorianCalendar; REST clients expect ISO LocalDate/LocalDateTime. Per-service adapters convert at JAXB boundary — no date leakage into business logic.</td></tr>
+    <tr><td>Cache technology</td><td>EhCache 3 (Jakarta, JSR-107)</td><td>In-process, no infrastructure dependency. Heap + off-heap tiers for SID cache. Spring Cache abstraction means CacheKeeper logic is cache-implementation-agnostic.</td></tr>
+    <tr><td>Service topology</td><td>5 independent Spring Boot JARs</td><td>Allows individual service scaling, deployment, and versioning. Each SOAP domain (inventory, cost, index, cash) is isolated — a WSDL change in one service does not affect others.</td></tr>
+    <tr><td>Error contract</td><td>ServiceResponsePayload&lt;T&gt; wrapper</td><td>Uniform JSON envelope for both success and error responses. REST consumers parse a single contract regardless of SOAP fault type — decouples caller from SOAP protocol semantics.</td></tr>
+  </table>
+</div>
+
+<!-- CARD 6: CI/CD Pipeline -->
+<div class="card">
+  <div class="ctitle"><span class="num">6</span> CI/CD Pipeline</div>
+  <table class="pipe">
+    <colgroup>
+      <col style="width:13%"><col style="width:3%">
+      <col style="width:13%"><col style="width:3%">
+      <col style="width:13%"><col style="width:3%">
+      <col style="width:13%"><col style="width:3%">
+      <col style="width:13%"><col style="width:3%">
+      <col style="width:13%"><col style="width:3%">
+      <col style="width:9%">
+    </colgroup>
+    <tr>
+      <td class="s">Build<br><span style="font-weight:400;font-size:8px;">mvn install + Jib</span></td><td class="a">&#8594;</td>
+      <td class="s">Test<br><span style="font-weight:400;font-size:8px;">Unit tests</span></td><td class="a">&#8594;</td>
+      <td class="s">Upload<br><span style="font-weight:400;font-size:8px;">Push 5 images</span></td><td class="a">&#8594;</td>
+      <td class="s">Vuln Scan<br><span style="font-weight:400;font-size:8px;">Trivy (4 services)</span></td><td class="a">&#8594;</td>
+      <td class="s m">Deploy<br><span style="font-weight:400;font-size:8px;">Ansible playbook</span></td><td class="a">&#8594;</td>
+      <td class="s">Start<br><span style="font-weight:400;font-size:8px;">Service start</span></td><td class="a">&#8594;</td>
+      <td class="s">Verify<br><span style="font-weight:400;font-size:8px;">Health check</span></td>
+    </tr>
+    <tr>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Manual (PROD/PRE)</td><td></td>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Auto</td>
+    </tr>
+  </table>
+  <p class="small">Each of the 5 proxy services is built as an independent Docker image and deployed separately. Trivy vulnerability scan runs on all active service images. PROD/PRE deployments require manual trigger. App version: 2.5.0.</p>
+</div>
+
+<!-- CARD 7: Observability -->
+<div class="card">
+  <div class="ctitle"><span class="num">7</span> Observability</div>
+  <div class="g6">
+    <div class="obs"><div class="otitle">Per-Operation Metrics (@Timed)</div><div class="odesc">Every generated proxy method carries @Timed(value="ServiceName_operationName"). TimedAspect records call count, total time, and max latency histograms. Available at /actuator/prometheus per service.</div></div>
+    <div class="obs"><div class="otitle">Micrometer + Prometheus</div><div class="odesc">Spring Boot Actuator exposes /actuator/prometheus, /actuator/health and /actuator/metrics endpoints. Micrometer 1.13.4 records JVM, HTTP, and SOAP proxy metrics. management.endpoints configured per service.</div></div>
+    <div class="obs"><div class="otitle">SOAP Envelope Logging</div><div class="odesc">LoggingClientInterceptor is registered on every WebServiceTemplate. Logs full SOAP request and response envelopes at DEBUG level, including headers and faults. Enabled per environment via logback configuration.</div></div>
+    <div class="obs"><div class="otitle">MDC Correlation</div><div class="odesc">WebserviceProxyAdaptor populates SLF4J MDC with CONTEXT_ID (ServiceCallContextId) and USER (UserName) on every request. Every log line carries these fields — correlates REST call with downstream SOAP call in Splunk.</div></div>
+    <div class="obs"><div class="otitle">Distributed Tracing</div><div class="odesc">OpenTelemetry Java Agent 2.8.10 auto-instruments HTTP and Spring WS calls. Trace context propagated through the entire proxy chain: REST client → proxy service → SOAP backend. Exported to collector via OTLP.</div></div>
+    <div class="obs"><div class="otitle">Swagger / OpenAPI</div><div class="odesc">Springdoc OpenAPI 2.6 auto-generates API documentation from each service's @RestController annotations. Swagger UI available at /swagger-ui.html per service port — driven entirely from generated controller code.</div></div>
+  </div>
+</div>
+
+<!-- CARD 8: Technology Stack -->
+<div class="card">
+  <div class="ctitle"><span class="num">8</span> Technology Stack</div>
+  <div class="techs">
+    <span class="tech">Java 17</span>
+    <span class="tech">Spring Boot 3.3.0</span>
+    <span class="tech">Spring Web MVC</span>
+    <span class="tech">Spring WS 3.3</span>
+    <span class="tech">Spring Cache</span>
+    <span class="tech">Apache CXF 3.5.3</span>
+    <span class="tech">CXF JAX-WS</span>
+    <span class="tech">cxf-codegen-plugin</span>
+    <span class="tech">JAXB (Jakarta XML Bind 4.0)</span>
+    <span class="tech">JAXWS (Jakarta XML WS 4.0)</span>
+    <span class="tech">Jakarta SOAP API 3.0.2</span>
+    <span class="tech">Jaxb2Marshaller</span>
+    <span class="tech">WebServiceTemplate</span>
+    <span class="tech">XSLT (JAXP TransformerFactory)</span>
+    <span class="tech">Jackson 2.x + JavaTimeModule</span>
+    <span class="tech">MapStruct 1.5.3</span>
+    <span class="tech">EhCache 3.10.8 (Jakarta)</span>
+    <span class="tech">JSR-107 (JCache)</span>
+    <span class="tech">Micrometer 1.13.4</span>
+    <span class="tech">Prometheus</span>
+    <span class="tech">OpenTelemetry Java Agent 2.8.10</span>
+    <span class="tech">Springdoc OpenAPI 2.6.0</span>
+    <span class="tech">SLF4J 2.0.16</span>
+    <span class="tech">Logback</span>
+    <span class="tech">AspectJ Runtime 1.8.9</span>
+    <span class="tech">exec-maven-plugin</span>
+    <span class="tech">fmt-maven-plugin</span>
+    <span class="tech">spring-boot-maven-plugin</span>
+    <span class="tech">Jib Maven plugin</span>
+    <span class="tech">GitLab CI/CD</span>
+    <span class="tech">Ansible</span>
+    <span class="tech">Trivy (Vuln scan)</span>
+    <span class="tech">Docker</span>
+  </div>
+</div>
+
+</body>
+</html>
