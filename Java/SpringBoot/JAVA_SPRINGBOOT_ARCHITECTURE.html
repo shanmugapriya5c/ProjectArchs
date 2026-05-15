@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Laboratory Data Upload &amp; Integration Service</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px;
+      color: #2d3748; line-height: 1.5; background: #fff;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; width: 100%;
+    }
+    .hdr { background: linear-gradient(135deg,#1a2e4a,#2b6cb0); color:#fff; padding:14px 18px 12px; border-radius:8px; margin-bottom:9px; }
+    .hdr h1 { font-size:20px; font-weight:700; margin-bottom:4px; }
+    .hdr p  { font-size:11px; opacity:0.88; margin-bottom:8px; }
+    .pills  { display:flex; flex-wrap:wrap; gap:4px; }
+    .pill   { background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.35); border-radius:20px; padding:2px 8px; font-size:9px; font-weight:600; }
+    .card   { border:1px solid #d0dce8; border-radius:8px; padding:12px 14px; margin-bottom:8px; page-break-inside:avoid; background:#fff; }
+    .ctitle { font-size:13px; font-weight:700; color:#1a2e4a; border-bottom:2px solid #ebf4ff; padding-bottom:5px; margin-bottom:9px; display:flex; align-items:center; gap:7px; }
+    .num    { background:#2b6cb0; color:#fff; border-radius:50%; width:18px; height:18px; font-size:9px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    .g6 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+    .box { border-radius:6px; padding:9px; }
+    .box h4 { font-size:10px; font-weight:700; color:#1a2e4a; margin-bottom:5px; }
+    .box ul { list-style:none; }
+    .box ul li { font-size:9px; color:#4a5568; padding:1.5px 0; border-bottom:1px solid rgba(0,0,0,0.05); }
+    .box ul li:last-child { border-bottom:none; }
+    .b-blue   { background:#ebf8ff; }
+    .b-purple { background:#faf5ff; }
+    .b-green  { background:#f0fff4; }
+    .b-side   { background:#f7fafc; border-left:3px solid #2b6cb0; border-radius:0 6px 6px 0; padding:8px 10px; }
+    .b-side .bt { font-size:9px; font-weight:700; color:#1a2e4a; margin-bottom:2px; }
+    .b-side .bd { font-size:8.5px; color:#4a5568; }
+    .desc  { font-size:11px; color:#4a5568; margin-bottom:8px; }
+    .small { font-size:9px; color:#718096; margin-top:4px; }
+    .flow  { background:#f7fafc; border:1px solid #d0dce8; border-radius:6px; padding:9px 11px; font-family:'Consolas','Courier New',monospace; font-size:8.5px; line-height:1.75; white-space:pre; overflow:hidden; margin-bottom:7px; }
+    .note  { background:#ebf8ff; border-left:3px solid #2b6cb0; border-radius:0 6px 6px 0; padding:7px 10px; font-size:10px; }
+    .note strong { color:#1a2e4a; }
+    .plist { list-style:none; }
+    .plist li { display:flex; gap:8px; padding:4px 0; border-bottom:1px solid #f0f4f8; }
+    .plist li:last-child { border-bottom:none; }
+    .plist .ic { font-size:11px; width:14px; flex-shrink:0; margin-top:1px; }
+    .plist strong { font-size:10px; color:#1a2e4a; display:block; }
+    .plist span   { font-size:9px; color:#4a5568; }
+    .tbl { width:100%; border-collapse:collapse; font-size:9.5px; }
+    .tbl th { background:#ebf4ff; color:#1a2e4a; font-weight:700; padding:5px 7px; text-align:left; border-bottom:2px solid #bee3f8; }
+    .tbl td { padding:4px 7px; border-bottom:1px solid #e2e8f0; vertical-align:top; }
+    .tbl tr:last-child td { border-bottom:none; }
+    .tbl td:first-child { font-weight:600; color:#2b6cb0; }
+    .job   { background:#f7fafc; border:1px solid #e2e8f0; border-radius:6px; padding:9px; }
+    .jname { font-size:10px; font-weight:700; color:#2b6cb0; margin-bottom:3px; }
+    .jtag  { display:inline-block; background:#ebf4ff; border-radius:10px; padding:1px 7px; font-size:8px; font-weight:600; color:#2b6cb0; margin-bottom:4px; }
+    .jdesc { font-size:9px; color:#4a5568; line-height:1.5; }
+    .obs   { background:#f7fafc; border:1px solid #e2e8f0; border-radius:6px; padding:9px; }
+    .otitle { font-size:10px; font-weight:700; color:#2b6cb0; margin-bottom:3px; }
+    .odesc  { font-size:9px; color:#4a5568; }
+    .techs { display:flex; flex-wrap:wrap; gap:4px; }
+    .tech  { background:#ebf4ff; color:#1a365d; border:1px solid #bee3f8; border-radius:12px; padding:2px 8px; font-size:9px; font-weight:600; }
+    .pipe  { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; margin-bottom:5px; }
+    .pipe td.s  { background:#ebf4ff; border:2px solid #bee3f8; border-radius:5px; text-align:center; padding:6px 3px; font-size:9px; font-weight:700; color:#1a2e4a; }
+    .pipe td.s.m{ background:#fffbeb; border-color:#f6e05e; color:#7b5e00; }
+    .pipe td.a  { border:none; background:none; text-align:center; color:#a0aec0; font-size:10px; }
+    .pipe td.lb { border:none; background:none; text-align:center; font-size:8px; color:#718096; padding:2px 0 0; }
+    .sm    { width:100%; border-collapse:separate; border-spacing:5px 0; table-layout:fixed; margin:8px 0 4px; }
+    .sm td.b  { border-radius:5px; text-align:center; padding:6px 2px; font-size:9px; font-weight:700; }
+    .sm td.ar { border:none; background:none; text-align:center; color:#a0aec0; font-size:8px; line-height:1.3; }
+    .s-pur { background:#faf5ff; border:2px solid #d6bcfa; color:#553c9a; }
+    .s-blu { background:#ebf4ff; border:2px solid #bee3f8; color:#1a2e4a; }
+    .s-grn { background:#f0fff4; border:2px solid #9ae6b4; color:#276749; }
+    .s-red { background:#fff5f5; border:2px solid #feb2b2; color:#c0392b; }
+    .s-gry { background:#f7fafc; border:2px solid #e2e8f0; color:#718096; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <h1>Laboratory Data Upload &amp; Integration Service</h1>
+  <p>Message-driven file-processing microservice that ingests laboratory test data (Excel/CSV), validates and enriches records via SOAP/REST services, and updates the core inspection &amp; measurement system — Java 11, Spring Boot 2.7, Spring Integration.</p>
+  <div class="pills">
+    <span class="pill">Java 11</span><span class="pill">Spring Boot 2.7</span>
+    <span class="pill">Spring Integration</span><span class="pill">Spring Integration SFTP</span>
+    <span class="pill">Apache POI</span><span class="pill">JAXWS / SOAP</span>
+    <span class="pill">REST</span><span class="pill">Oracle DB</span>
+    <span class="pill">Hibernate Validator</span><span class="pill">Jasypt</span>
+    <span class="pill">OpenCSV</span><span class="pill">Maven</span>
+    <span class="pill">GitLab CI</span><span class="pill">Ansible</span>
+  </div>
+</div>
+
+<!-- 1. System Overview -->
+<div class="card">
+  <div class="ctitle"><span class="num">1</span> System Overview</div>
+  <p class="desc">A production-grade <strong>file-driven integration service</strong> that automates laboratory test data upload into a core trading platform's inspection &amp; measurement system. An inbound file poller watches a local directory, routes files by type (result data vs. certificates), parses multi-format inputs (Excel, CSV), validates against business rules, enriches via reference data lookups, and persists to the inspection system via SOAP web services. Certificates are archived to a document management system.</p>
+  <div class="g3" style="margin-bottom:7px;">
+    <div class="box b-blue">
+      <h4>Inbound Layer</h4>
+      <ul>
+        <li>Spring Integration file poller (60s interval)</li>
+        <li>Filename-pattern-based routing</li>
+        <li>Factory-pattern file parsing (Excel/CSV)</li>
+        <li>Hibernate Validator pre-validation</li>
+        <li>Multi-format: XLSX, XLS, CSV, PDF stub</li>
+      </ul>
+    </div>
+    <div class="box b-purple">
+      <h4>Processing Layer</h4>
+      <ul>
+        <li>Spring Integration message channels</li>
+        <li>Dedicated handlers per file type</li>
+        <li>Reference data enrichment (labs, UOMs, grades)</li>
+        <li>Assignment/lot matching via Logistics SOAP</li>
+        <li>Single-threaded executor (sequential safety)</li>
+      </ul>
+    </div>
+    <div class="box b-green">
+      <h4>Outbound Layer</h4>
+      <ul>
+        <li>Inspection SOAP service (create/update records)</li>
+        <li>Logistics SOAP (assignment queries)</li>
+        <li>Document management REST (certificate upload)</li>
+        <li>Reference Data REST (lookups, caching)</li>
+        <li>SMTP email notifications (HTML reports)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="b-side"><div class="bt">File-driven event architecture</div><div class="bd">No REST API endpoint triggers processing — a Spring Integration poller watches a shared directory, enabling seamless integration with upstream file delivery systems (SFTP, email extractors).</div></div>
+    <div class="b-side"><div class="bt">Per-record error isolation</div><div class="bd">Each row in an input file is processed independently. Failures on individual records do not reject the entire file — valid records proceed, failures are reported via email.</div></div>
+    <div class="b-side"><div class="bt">Multi-service enrichment pipeline</div><div class="bd">Raw file data is enriched via 5+ external service calls (reference data, logistics, trade) before inspection system update — ensuring data integrity at source.</div></div>
+    <div class="b-side"><div class="bt">Sequential processing for data consistency</div><div class="bd">A single-threaded executor ensures record updates to the same assignment are never processed concurrently, preventing race conditions in the inspection system.</div></div>
+  </div>
+</div>
+
+<!-- 2. File Processing Lifecycle -->
+<div class="card">
+  <div class="ctitle"><span class="num">2</span> File Processing Lifecycle</div>
+  <div class="flow">File Poller ──scans directory (60s)──► Spring Integration Router
+                          |
+          ┌───────────────┼───────────────┐
+          ▼               ▼               ▼
+    RESULT files     CERT files      Unprocessed
+          |               |               |
+    FileHandler      DocMgmtHandler   Recovery
+      ├─ FileParserFactory.getParser(ext)
+      ├─ ExcelReader / CsvReader
+      ├─ mapToItem() → List&lt;DataEntity&gt;
+      ├─ Hibernate Validator (pre-validation)
+      └─ Split: valid set / invalid set
+                |
+        ServiceBroker (enrichment)
+          ├─ Ref Data REST: lab, grade, UOM, testType
+          ├─ Logistics SOAP: assignment, lot details
+          └─ Trade SOAP: trade metadata
+                |
+        ResultProcessor (single-threaded executor)
+          ├─ Group by assignmentId + testType
+          ├─ Inspection SOAP: listRecords → match by label
+          ├─ Update existing  OR  Create new (if authorised)
+          └─ Set status: SUCCESS / FAILED per record
+                |
+        ┌───────┼───────┐
+        ▼       ▼       ▼
+    MailHandler  ArchiveHandler  LogHandler
+    (HTML email) (move to        (ctxId
+     + CSV)      archive dir)    correlation)</div>
+  <div class="note"><strong>Why file-based, not API-driven?</strong> Laboratory systems and upstream extractors deliver data as files (via SFTP/email). The file poller pattern decouples the service from delivery mechanism specifics, and filename conventions encode routing metadata (lab name, assignment ID, file type) without requiring API contracts.</div>
+</div>
+
+<!-- 3. Message Handlers -->
+<div class="card">
+  <div class="ctitle"><span class="num">3</span> Message Handlers</div>
+  <p class="desc">Spring Integration routes files to dedicated handlers based on filename prefix. Each handler is a <strong>ServiceActivator</strong> bound to a named channel. A single-threaded <code>ResultExecutor</code> queues processing tasks sequentially to prevent concurrent updates.</p>
+  <div class="g3">
+    <div class="job">
+      <div class="jname">File Handler (Result)</div>
+      <div class="jtag">Channel: resultChannel</div>
+      <div class="jdesc">Parses RESULT/DATES files via factory-pattern readers (Excel, CSV). Validates each row with Hibernate Validator, enriches via reference data/Logistics lookups, then queues a ResultProcessor task for inspection system update.</div>
+    </div>
+    <div class="job">
+      <div class="jname">Document Handler (Cert)</div>
+      <div class="jtag">Channel: certChannel</div>
+      <div class="jdesc">Handles certificate PDF files. Authenticates with the document management system, creates a folder structure by assignment, uploads the file with metadata JSON, and sends a status email.</div>
+    </div>
+    <div class="job">
+      <div class="jname">Unprocessed File Handler</div>
+      <div class="jtag">Channel: unprocessedChannel</div>
+      <div class="jdesc">Recovery handler that scans the unprocessed directory for files that failed initial routing. Re-queues them for processing — prevents silent data loss from transient startup failures.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Data Design & State Machine -->
+<div class="card">
+  <div class="ctitle"><span class="num">4</span> Data Design &amp; Processing State Machine</div>
+  <p class="desc">Each row in an input file is modelled as a DataEntity with its own lifecycle state. Errors accumulate per entity — no batch rejection. Oracle views provide assignment and lot data for enrichment. Logistics DB accessed via JDBC for direct view queries.</p>
+  <table class="sm">
+    <colgroup>
+      <col class="b"><col class="ar"><col class="b"><col class="ar">
+      <col class="b"><col class="ar"><col class="b"><col class="ar">
+      <col class="b">
+    </colgroup>
+    <tr>
+      <td class="b s-pur">File<br>Received</td>
+      <td class="ar">&#8594;</td>
+      <td class="b s-blu">Pre-<br>Validation</td>
+      <td class="ar">enrich<br>&#8594;</td>
+      <td class="b s-blu">Enrichment<br>&amp; Matching</td>
+      <td class="ar">persist<br>&#8594;</td>
+      <td class="b s-grn">Success</td>
+      <td class="ar">or</td>
+      <td class="b s-red">Failed</td>
+    </tr>
+  </table>
+  <p class="small">After processing: valid + invalid results aggregated into HTML email report with CSV export. Source file moved to archive directory. Failed records include concatenated error details.</p>
+  <table class="tbl" style="margin-top:7px;">
+    <tr><th>Data Source</th><th>Purpose</th><th>Key Fields</th></tr>
+    <tr><td>DataEntity (DTO)</td><td>Per-row domain model with 60+ fields and validation annotations</td><td>lineNumber, recordType, labName, assignmentID, testType, lotRef, result, UOM</td></tr>
+    <tr><td>Assignment View</td><td>Oracle view for logistics assignment data (direction, quality, product)</td><td>assignmentId, tradeDirection, quality, product, counterparty, quantities</td></tr>
+    <tr><td>Lot View</td><td>Oracle view for lot-level details within assignments</td><td>lotNumber, lotReference, dryQuantity, wetQuantity, analysisId</td></tr>
+    <tr><td>Reference Data Cache</td><td>In-memory cache of SRD lookups (labs, UOMs, commodities, elements)</td><td>refType, refCode, cachedValue</td></tr>
+    <tr><td>Archive Directory</td><td>Processed files moved here after completion</td><td>originalFileName, processedTimestamp</td></tr>
+  </table>
+</div>
+
+<!-- 5. Key Architecture Patterns -->
+<div class="card">
+  <div class="ctitle"><span class="num">5</span> Key Architecture Patterns</div>
+  <ul class="plist">
+    <li><span class="ic">&#128233;</span><div><strong>Message-Driven File Processing (EIP)</strong><span>Spring Integration poller + channel + handler pattern decouples file arrival from processing logic. Routing by filename prefix, not content inspection — fast and deterministic.</span></div></li>
+    <li><span class="ic">&#128260;</span><div><strong>Factory Pattern File Parsing</strong><span>FileParserFactory returns the correct reader (Excel, CSV, PDF) by file extension. Adding new formats requires only a new IFileParser implementation — no routing changes.</span></div></li>
+    <li><span class="ic">&#128737;</span><div><strong>Per-Record Error Isolation</strong><span>Each entity carries its own error state. Processing continues for valid records even when others fail — no batch rejection, graceful degradation with full error reporting via email.</span></div></li>
+    <li><span class="ic">&#9889;</span><div><strong>Sequential Executor for Data Safety</strong><span>ResultExecutor wraps a single-threaded ExecutorService. Tasks queued sequentially prevent concurrent inspection SOAP updates to the same assignment — eliminates race conditions.</span></div></li>
+    <li><span class="ic">&#8644;</span><div><strong>Multi-Layer Validation Pipeline</strong><span>Three validation stages: Hibernate annotations (format/nullability), business rules (SRD/assignment existence), processing rules (lot matching, UOM compatibility) — each stage filters before the next.</span></div></li>
+    <li><span class="ic">&#128190;</span><div><strong>Resilient Retry with Backoff</strong><span>All external service calls (SOAP + REST) implement retry logic — 5 attempts, 60s delay on HTTP 503 and socket timeouts. Exhaustion throws RuntimeException for error reporting.</span></div></li>
+    <li><span class="ic">&#127758;</span><div><strong>Maven Profile-Based Multi-Environment</strong><span>Environment-specific properties copied from profile folders (dev/qa/uat/prod) at build time. Jasypt encrypts credentials at rest — master password provided at runtime via JVM arg.</span></div></li>
+    <li><span class="ic">&#128274;</span><div><strong>Health-Check Gate Before Processing</strong><span>ServerHealthCheckService pings all downstream endpoints (Inspection, Logistics, Reference Data) before processing begins — prevents wasted parsing and enrichment when services are unavailable.</span></div></li>
+  </ul>
+</div>
+
+<!-- 6. Architecture Decisions -->
+<div class="card">
+  <div class="ctitle"><span class="num">6</span> Architecture Decisions</div>
+  <table class="tbl">
+    <tr><th>Decision</th><th>Choice</th><th>Rationale</th></tr>
+    <tr><td>Integration style</td><td>Spring Integration (file poller + channels)</td><td>File-based input requires EIP patterns; Spring Integration provides declarative polling, routing, and handler binding without custom scheduler code</td></tr>
+    <tr><td>File parsing</td><td>Apache POI + OpenCSV + Factory pattern</td><td>Labs deliver Excel and CSV; POI handles formula evaluation; factory pattern makes format addition trivial</td></tr>
+    <tr><td>External services</td><td>SOAP (Inspection, Logistics, Trade) + REST (Ref Data, DMS)</td><td>Inspection and Logistics expose WSDL-only interfaces; reference data and document management offer REST; both protocols supported natively</td></tr>
+    <tr><td>Concurrency model</td><td>Single-threaded executor</td><td>Inspection SOAP service is not thread-safe for concurrent updates to the same assignment; sequential processing eliminates data corruption risk</td></tr>
+    <tr><td>Error strategy</td><td>Per-record accumulation, no batch rejection</td><td>A single bad row should not block 100 valid rows; errors concatenated per entity and reported via email</td></tr>
+    <tr><td>Credential security</td><td>Jasypt encryption + JVM arg master password</td><td>Encrypted at rest in properties files; master password never committed to source control</td></tr>
+    <tr><td>Deployment package</td><td>Assembly ZIP (JAR + libs + WSDL + shell script)</td><td>Target hosts require full distribution; assembly plugin creates a self-contained deployable without Docker dependency</td></tr>
+  </table>
+</div>
+
+<!-- 7. CI/CD Pipeline -->
+<div class="card">
+  <div class="ctitle"><span class="num">7</span> CI/CD Pipeline</div>
+  <table class="pipe">
+    <colgroup>
+      <col class="s"><col class="a"><col class="s"><col class="a">
+      <col class="s"><col class="a"><col class="s">
+    </colgroup>
+    <tr>
+      <td class="s">Semgrep<br><span style="font-weight:400;font-size:8px;">SAST scan</span></td>
+      <td class="a">&#8594;</td>
+      <td class="s">Build<br><span style="font-weight:400;font-size:8px;">mvn install</span></td>
+      <td class="a">&#8594;</td>
+      <td class="s">Test<br><span style="font-weight:400;font-size:8px;">Unit tests</span></td>
+      <td class="a">&#8594;</td>
+      <td class="s m">Deploy<br><span style="font-weight:400;font-size:8px;">Ansible</span></td>
+    </tr>
+    <tr>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Manual</td>
+    </tr>
+  </table>
+  <p class="small" style="margin-top:5px;">Semgrep runs as a SAST security scanner on every commit. Assembly ZIP deployed via Ansible playbooks: <strong>stop &#8594; deploy &#8594; enable service &#8594; start &#8594; health check</strong>. Four environment profiles: DEV, QA, UAT, PROD.</p>
+</div>
+
+<!-- 8. Observability -->
+<div class="card">
+  <div class="ctitle"><span class="num">8</span> Observability</div>
+  <div class="g6">
+    <div class="obs"><div class="otitle">Correlation Logging</div><div class="odesc">Each file generates a unique ctxId hash propagated through all Spring Integration channels and handlers. Log entries traceable end-to-end per file.</div></div>
+    <div class="obs"><div class="otitle">Health Check Gate</div><div class="odesc">ServerHealthCheckService pings Inspection, Logistics, and Reference Data endpoints before processing. Prevents wasted work when downstream services are unavailable.</div></div>
+    <div class="obs"><div class="otitle">Email Notifications</div><div class="odesc">HTML status reports sent per file: line-by-line results table, error details, and CSV export. Separate emails for validation failures and certificate upload status.</div></div>
+    <div class="obs"><div class="otitle">File Archival</div><div class="odesc">Every processed file moved to a timestamped archive directory. Provides audit trail and enables manual reprocessing if needed.</div></div>
+    <div class="obs"><div class="otitle">Structured Logging</div><div class="odesc">Logback-based logging with per-environment configuration. On-host logs written to application log file; container deployments forward to centralized log aggregation.</div></div>
+    <div class="obs"><div class="otitle">Error Accumulation</div><div class="odesc">Per-entity error fields concatenate all failure reasons across validation, enrichment, and processing stages — full diagnostic context in a single email row.</div></div>
+  </div>
+</div>
+
+<!-- 9. Technology Stack -->
+<div class="card">
+  <div class="ctitle"><span class="num">9</span> Technology Stack</div>
+  <div class="techs">
+    <span class="tech">Java 11</span><span class="tech">Spring Boot 2.7.12</span>
+    <span class="tech">Spring Integration</span><span class="tech">Spring Integration SFTP</span>
+    <span class="tech">Apache POI 4.1</span><span class="tech">OpenCSV 5.5</span>
+    <span class="tech">JAXWS 2.6 (SOAP)</span><span class="tech">RestTemplate (REST)</span>
+    <span class="tech">Oracle DB (ojdbc8)</span><span class="tech">Hibernate Validator</span>
+    <span class="tech">Jasypt</span><span class="tech">Joda-Time 2.12</span>
+    <span class="tech">JavaMail 1.4</span><span class="tech">SAAJ (SOAP Attachments)</span>
+    <span class="tech">Logback</span><span class="tech">JUnit</span>
+    <span class="tech">Maven 3.8+</span><span class="tech">Maven Assembly Plugin</span>
+    <span class="tech">jaxws-maven-plugin</span><span class="tech">GitLab CI/CD</span>
+    <span class="tech">Semgrep SAST</span><span class="tech">Ansible</span>
+  </div>
+</div>
+
+</body>
+</html>
