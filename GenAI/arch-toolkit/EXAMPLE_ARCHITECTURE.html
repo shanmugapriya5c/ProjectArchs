@@ -1,0 +1,394 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Enterprise Integration Middleware</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 12px;
+      color: #2d3748;
+      line-height: 1.5;
+      background: #fff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      width: 100%;
+    }
+
+    /* ── Header ─────────────────────────────────── */
+    .hdr {
+      background: linear-gradient(135deg, #1a2e4a, #2b6cb0);
+      color: #fff;
+      padding: 14px 18px 12px;
+      border-radius: 8px;
+      margin-bottom: 9px;
+    }
+    .hdr h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .hdr p  { font-size: 11px; opacity: 0.88; margin-bottom: 8px; }
+    .pills  { display: flex; flex-wrap: wrap; gap: 4px; }
+    .pill   { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35);
+              border-radius: 20px; padding: 2px 8px; font-size: 9px; font-weight: 600; }
+
+    /* ── Card ───────────────────────────────────── */
+    .card {
+      border: 1px solid #d0dce8;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      page-break-inside: avoid;
+      background: #fff;
+    }
+    .ctitle {
+      font-size: 13px; font-weight: 700; color: #1a2e4a;
+      border-bottom: 2px solid #ebf4ff; padding-bottom: 5px; margin-bottom: 9px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .num {
+      background: #2b6cb0; color: #fff; border-radius: 50%;
+      width: 18px; height: 18px; font-size: 9px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    /* ── Grids ──────────────────────────────────── */
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+    .g2 { display: grid; grid-template-columns: 1fr 1fr;     gap: 7px; }
+    .g6 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+
+    /* ── Box ────────────────────────────────────── */
+    .box { border-radius: 6px; padding: 9px; }
+    .box h4 { font-size: 10px; font-weight: 700; color: #1a2e4a; margin-bottom: 5px; }
+    .box ul { list-style: none; }
+    .box ul li { font-size: 9px; color: #4a5568; padding: 1.5px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .box ul li:last-child { border-bottom: none; }
+    .b-blue   { background: #ebf8ff; }
+    .b-purple { background: #faf5ff; }
+    .b-green  { background: #f0fff4; }
+    .b-side   { background: #f7fafc; border-left: 3px solid #2b6cb0; border-radius: 0 6px 6px 0; padding: 8px 10px; }
+    .b-side .bt { font-size: 9px; font-weight: 700; color: #1a2e4a; margin-bottom: 2px; }
+    .b-side .bd { font-size: 8.5px; color: #4a5568; }
+
+    /* ── Text ───────────────────────────────────── */
+    .desc { font-size: 11px; color: #4a5568; margin-bottom: 8px; }
+    .small { font-size: 9px; color: #718096; margin-top: 4px; }
+
+    /* ── Flow diagram ───────────────────────────── */
+    .flow {
+      background: #f7fafc; border: 1px solid #d0dce8; border-radius: 6px;
+      padding: 9px 11px; font-family: 'Consolas','Courier New', monospace;
+      font-size: 8.5px; line-height: 1.75; white-space: pre;
+      overflow: hidden; margin-bottom: 7px;
+    }
+
+    /* ── Note box ───────────────────────────────── */
+    .note {
+      background: #ebf8ff; border-left: 3px solid #2b6cb0;
+      border-radius: 0 6px 6px 0; padding: 7px 10px; font-size: 10px;
+    }
+    .note strong { color: #1a2e4a; }
+
+    /* ── Pattern list ───────────────────────────── */
+    .plist { list-style: none; }
+    .plist li { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px solid #f0f4f8; }
+    .plist li:last-child { border-bottom: none; }
+    .plist .ic { font-size: 11px; width: 14px; flex-shrink: 0; margin-top: 1px; }
+    .plist strong { font-size: 10px; color: #1a2e4a; display: block; }
+    .plist span   { font-size: 9px;  color: #4a5568; }
+
+    /* ── Decision / core table ──────────────────── */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 9.5px; }
+    .tbl th { background: #ebf4ff; color: #1a2e4a; font-weight: 700;
+              padding: 5px 7px; text-align: left; border-bottom: 2px solid #bee3f8; }
+    .tbl td { padding: 4px 7px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl td:first-child { font-weight: 600; color: #2b6cb0; }
+
+    /* ── Job cards ──────────────────────────────── */
+    .job { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 9px; }
+    .jname { font-size: 10px; font-weight: 700; color: #2b6cb0; margin-bottom: 3px; }
+    .jtag  { display: inline-block; background: #ebf4ff; border-radius: 10px;
+             padding: 1px 7px; font-size: 8px; font-weight: 600; color: #2b6cb0; margin-bottom: 4px; }
+    .jdesc { font-size: 9px; color: #4a5568; line-height: 1.5; }
+
+    /* ── Obs cards ──────────────────────────────── */
+    .obs { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 9px; }
+    .otitle { font-size: 10px; font-weight: 700; color: #2b6cb0; margin-bottom: 3px; }
+    .odesc  { font-size: 9px; color: #4a5568; }
+
+    /* ── Tech pills ─────────────────────────────── */
+    .techs { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tech  { background: #ebf4ff; color: #1a365d; border: 1px solid #bee3f8;
+             border-radius: 12px; padding: 2px 8px; font-size: 9px; font-weight: 600; }
+
+    /* ── CI/CD pipeline table ───────────────────── */
+    .pipe { width: 100%; border-collapse: separate; border-spacing: 0;
+            table-layout: fixed; margin-bottom: 5px; }
+    .pipe colgroup col.s { width: 14.28%; }
+    .pipe colgroup col.a { width: 3.57%;  }
+    .pipe td.s {
+      background: #ebf4ff; border: 2px solid #bee3f8; border-radius: 5px;
+      text-align: center; padding: 6px 3px; font-size: 9px; font-weight: 700; color: #1a2e4a;
+    }
+    .pipe td.s.m { background: #fffbeb; border-color: #f6e05e; color: #7b5e00; }
+    .pipe td.a   { border: none; background: none; text-align: center; color: #a0aec0; font-size: 10px; }
+    .pipe td.lb  { border: none; background: none; text-align: center;
+                   font-size: 8px; color: #718096; padding: 2px 0 0; }
+
+    /* ── State machine table ────────────────────── */
+    .sm { width: 100%; border-collapse: separate; border-spacing: 5px 0;
+          table-layout: fixed; margin: 8px 0 4px; }
+    .sm colgroup col.b  { width: 15%; }
+    .sm colgroup col.ar { width: 6%; }
+    .sm td.b  { border-radius: 5px; text-align: center; padding: 6px 2px;
+                font-size: 9px; font-weight: 700; }
+    .sm td.ar { border: none; background: none; text-align: center;
+                color: #a0aec0; font-size: 8px; line-height: 1.3; }
+    .s-pur { background: #faf5ff; border: 2px solid #d6bcfa; color: #553c9a; }
+    .s-blu { background: #ebf4ff; border: 2px solid #bee3f8; color: #1a2e4a; }
+    .s-grn { background: #f0fff4; border: 2px solid #9ae6b4; color: #276749; }
+    .s-red { background: #fff5f5; border: 2px solid #feb2b2; color: #c0392b; }
+    .s-gry { background: #f7fafc; border: 2px solid #e2e8f0; color: #718096; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <h1>Enterprise Integration Middleware</h1>
+  <p>Event-driven middleware bridging a core trading platform with downstream operational services — Java 17, Spring Boot 3, Spring Integration, Spring Batch.</p>
+  <div class="pills">
+    <span class="pill">Java 17</span><span class="pill">Spring Boot 3</span>
+    <span class="pill">Spring Integration</span><span class="pill">Spring Batch 5</span>
+    <span class="pill">Oracle DB</span><span class="pill">MapStruct</span>
+    <span class="pill">EhCache 3</span><span class="pill">OpenTelemetry</span>
+    <span class="pill">GitLab CI</span><span class="pill">Ansible</span><span class="pill">Docker / Jib</span>
+  </div>
+</div>
+
+<!-- 1. System Overview -->
+<div class="card">
+  <div class="ctitle"><span class="num">1</span> System Overview</div>
+  <p class="desc">A production-grade <strong>async middleware service</strong> — integration layer between a core trading system and an operations platform. Inbound REST requests are persisted immediately to Oracle and processed asynchronously via Spring Batch, routed through dedicated Spring Integration message channels to domain handlers which delegate to downstream REST proxies.</p>
+  <div class="g3" style="margin-bottom:7px;">
+    <div class="box b-blue">
+      <h4>Inbound Layer</h4>
+      <ul>
+        <li>Spring MVC REST Controller</li>
+        <li>Bean validation (@Valid)</li>
+        <li>MapStruct DTO mapping</li>
+        <li>Persist to Oracle (PENDING)</li>
+        <li>Return HTTP 200 immediately</li>
+      </ul>
+    </div>
+    <div class="box b-purple">
+      <h4>Integration Layer</h4>
+      <ul>
+        <li>Spring Integration DirectChannel</li>
+        <li>DynamicRecipientListRouter</li>
+        <li>One MessageHandler per operation</li>
+        <li>ServiceHelper (cross-cutting)</li>
+        <li>Spring Retry on proxy calls</li>
+      </ul>
+    </div>
+    <div class="box b-green">
+      <h4>Outbound Layer</h4>
+      <ul>
+        <li>Generated OpenAPI client stubs</li>
+        <li>Hand-written proxy wrappers</li>
+        <li>Apache HttpClient5 (SSL-aware)</li>
+        <li>Reference data invoker (cached)</li>
+        <li>EhCache 3 (cache-aside)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="b-side"><div class="bt">Decoupling intake from processing</div><div class="bd">Callers needed instant acknowledgement regardless of downstream latency. Solved with outbox pattern — persist first, process async via Spring Batch.</div></div>
+    <div class="b-side"><div class="bt">Operation-level routing without branching code</div><div class="bd">Routing dozens of operations cleanly — one DirectChannel + one MessageHandler per operation, wired via configuration, no switch statements.</div></div>
+    <div class="b-side"><div class="bt">Resilience against transient downstream failures</div><div class="bd">Spring Retry at the proxy layer with configurable attempt counts and back-off delays per service type handles transient 5xx and timeouts.</div></div>
+    <div class="b-side"><div class="bt">Zero data loss on JVM crash</div><div class="bd">A startup CommandLineRunner resets stale IN_PROGRESS records to FAILED — no request silently abandoned after an unexpected restart.</div></div>
+  </div>
+</div>
+
+<!-- 2. Async Request Lifecycle -->
+<div class="card">
+  <div class="ctitle"><span class="num">2</span> Async Request Lifecycle</div>
+  <div class="flow">Caller ──POST /api/operation──► REST Controller
+                       |
+                       ├─ Validate (@Valid)  ├─ Map entity (MapStruct)
+                       ├─ Save to Oracle [PENDING]
+                       └─ Return HTTP 200 immediately  ◄── caller is free
+
+     Spring Batch Job  (asynchronously, in background)
+       ├─ Read PENDING records from Oracle
+       ├─ Group by priority  ──►  ExecutorService parallel workers
+       └─ @Transformer builds typed Message
+                       |
+         DynamicRecipientListRouter
+                       |
+           ┌───────────┼───────────┐
+           ▼           ▼           ▼
+     DirectChannel DirectChannel DirectChannel ... (one per operation)
+           |
+     OperationHandler
+       ├─ EhCache lookup (reference data)
+       ├─ Call downstream REST Proxy (Spring Retry)
+       ├─ Update Oracle [SUCCESS / FAILED]
+       └─ POST result to callback endpoint (optional)</div>
+  <div class="note"><strong>Why not a message broker?</strong> In-process Spring Integration channels provide transactional consistency with the Oracle state store, zero broker operational overhead, and deterministic per-operation routing — all via properties, not code.</div>
+</div>
+
+<!-- 3. Spring Batch Jobs -->
+<div class="card">
+  <div class="ctitle"><span class="num">3</span> Spring Batch Jobs</div>
+  <p class="desc">Three jobs handle all async processing. Jobs are <strong>not auto-started</strong> — triggered via <code>JobLauncher</code> or <code>@Scheduled</code>. <code>spring.batch.job.enabled=false</code> prevents accidental startup execution.</p>
+  <div class="g3">
+    <div class="job">
+      <div class="jname">Integration Job</div>
+      <div class="jtag">Scheduled / Programmatic</div>
+      <div class="jdesc">Reads PENDING records from Oracle (up to 1500/cycle), groups by priority, submits each group to Spring Integration channels via a parallel ExecutorService thread pool.</div>
+    </div>
+    <div class="job">
+      <div class="jname">Reference Data Sync Job</div>
+      <div class="jtag">Scheduled</div>
+      <div class="jdesc">Synchronises reference data into a local Oracle cache table. Cached entries served from EhCache — sync job keeps them current and eliminates per-request round-trips.</div>
+    </div>
+    <div class="job">
+      <div class="jname">Purge Job</div>
+      <div class="jtag">Scheduled</div>
+      <div class="jdesc">Deletes completed and failed records older than the retention period (default 120 days). Bounds Oracle table growth without manual DBA intervention.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Database Design -->
+<div class="card">
+  <div class="ctitle"><span class="num">4</span> Database Design &amp; Request State Machine</div>
+  <p class="desc">Oracle is the system of record. Every API call gets a row immediately on receipt — before any async processing. Schema managed via SQL migration scripts (<code>ddl-auto=none</code>).</p>
+  <table class="sm">
+    <colgroup>
+      <col class="b"><col class="ar"><col class="b"><col class="ar">
+      <col class="b"><col class="ar"><col class="b"><col class="ar">
+      <col class="b"><col class="ar"><col class="b">
+    </colgroup>
+    <tr>
+      <td class="b s-pur">Inbound<br>API Call</td>
+      <td class="ar">&#8594;</td>
+      <td class="b s-blu">PENDING</td>
+      <td class="ar">Batch<br>picks up<br>&#8594;</td>
+      <td class="b s-blu">IN_PROGRESS</td>
+      <td class="ar">proxy<br>call<br>&#8594;</td>
+      <td class="b s-grn">SUCCESS</td>
+      <td class="ar">or</td>
+      <td class="b s-red">FAILED</td>
+      <td class="ar">purge<br>job<br>&#8594;</td>
+      <td class="b s-gry">DELETED</td>
+    </tr>
+  </table>
+  <p class="small">On JVM restart: any IN_PROGRESS record is reset to FAILED by a startup CommandLineRunner — no record silently abandoned.</p>
+  <table class="tbl" style="margin-top:7px;">
+    <tr><th>Table</th><th>Purpose</th><th>Key Fields</th></tr>
+    <tr><td>Request Table</td><td>Top-level lifecycle row per inbound API call</td><td>requestId, operationName, status, priority, createdAt</td></tr>
+    <tr><td>Source Data Feed</td><td>Raw inbound payload stored immediately on receipt</td><td>requestId (FK), rawPayload, sourceSystem, receivedAt</td></tr>
+    <tr><td>API Request Details</td><td>Per-step result — request sent and response received</td><td>requestId (FK), apiName, requestBody, responseBody, status</td></tr>
+    <tr><td>Operation Registry</td><td>Master list of operation names and routing metadata</td><td>methodName, channelName, flowType, active</td></tr>
+    <tr><td>Reference Data Cache</td><td>Locally cached lookup data synced by Ref Data Sync Job</td><td>refType, refCode, cachedValue, lastSyncAt</td></tr>
+  </table>
+</div>
+
+<!-- 5. Key Architecture Patterns -->
+<div class="card">
+  <div class="ctitle"><span class="num">5</span> Key Architecture Patterns</div>
+  <ul class="plist">
+    <li><span class="ic">&#9889;</span><div><strong>Async Request-Reply (Outbox style)</strong><span>Caller gets instant HTTP 200. Oracle acts as the durable outbox — Spring Batch picks up and processes records async, decoupling intake from processing latency.</span></div></li>
+    <li><span class="ic">&#8644;</span><div><strong>Property-Driven Message Routing</strong><span>DynamicRecipientListRouter resolves the target DirectChannel at runtime from an externalized property — routing changed without code change or redeployment.</span></div></li>
+    <li><span class="ic">&#128260;</span><div><strong>Priority-Based Parallel Processing</strong><span>Spring Batch groups pending records by priority. ExecutorService processes each group concurrently, blocking before advancing — high-priority operations never starved.</span></div></li>
+    <li><span class="ic">&#128737;</span><div><strong>Startup Recovery (Fail-Safe)</strong><span>CommandLineRunner marks any IN_PROGRESS records as FAILED on JVM start — prevents silent data loss after unexpected restarts.</span></div></li>
+    <li><span class="ic">&#128190;</span><div><strong>Cache-Aside (EhCache 3)</strong><span>Reference data cached in EhCache via Spring Cache abstraction — eliminates redundant round-trips during high-frequency batch cycles.</span></div></li>
+    <li><span class="ic">&#128274;</span><div><strong>Proxy Abstraction Layer</strong><span>Generated OpenAPI stubs wrapped in hand-written proxy classes adding SSL, retry, and error mapping — insulates business logic from generated code churn.</span></div></li>
+    <li><span class="ic">&#127758;</span><div><strong>Single-Artifact Multi-Environment</strong><span>One JAR across all environments. Spring Profiles + Jasypt-encrypted credentials externalize all config — no rebuilds, no env-specific artifacts.</span></div></li>
+  </ul>
+</div>
+
+<!-- 6. Architecture Decisions -->
+<div class="card">
+  <div class="ctitle"><span class="num">6</span> Architecture Decisions</div>
+  <table class="tbl">
+    <tr><th>Decision</th><th>Choice</th><th>Rationale</th></tr>
+    <tr><td>Async mechanism</td><td>Spring Batch + Oracle</td><td>Transactional consistency with request-state DB; no broker to manage; retry via PENDING records</td></tr>
+    <tr><td>Channel routing</td><td>DirectChannel + RecipientListRouter</td><td>In-process, no serialization; one channel per operation; routing via properties</td></tr>
+    <tr><td>Client generation</td><td>OpenAPI codegen stub + proxy wrapper</td><td>Decouples business logic from generated code; centralizes SSL / retry / error handling</td></tr>
+    <tr><td>Container build</td><td>Maven Jib Plugin (no Dockerfile)</td><td>No Docker-in-Docker in CI; reproducible layered builds; faster pipeline</td></tr>
+    <tr><td>Credential security</td><td>Jasypt + env-var master password</td><td>Encrypted at rest in source; master password never in code or CI logs</td></tr>
+    <tr><td>Schema management</td><td>SQL scripts (ddl-auto=none)</td><td>Full DBA control; no accidental Hibernate DDL changes in production</td></tr>
+    <tr><td>Test isolation</td><td>H2 in-memory + schema.sql</td><td>Zero external dependencies in CI; Oracle-compatible DDL without Oracle license</td></tr>
+  </table>
+</div>
+
+<!-- 7. CI/CD Pipeline -->
+<div class="card">
+  <div class="ctitle"><span class="num">7</span> CI/CD Pipeline</div>
+  <table class="pipe">
+    <colgroup>
+      <col class="s"><col class="a"><col class="s"><col class="a">
+      <col class="s"><col class="a"><col class="s"><col class="a">
+      <col class="s"><col class="a"><col class="s">
+    </colgroup>
+    <tr>
+      <td class="s">Build<br><span style="font-weight:400;font-size:8px;">mvn install</span></td>
+      <td class="a">&#8594;</td>
+      <td class="s">Test<br><span style="font-weight:400;font-size:8px;">H2 in-memory</span></td>
+      <td class="a">&#8594;</td>
+      <td class="s">Image Push<br><span style="font-weight:400;font-size:8px;">Jib build</span></td>
+      <td class="a">&#8594;</td>
+      <td class="s">Vuln Scan<br><span style="font-weight:400;font-size:8px;">Container</span></td>
+      <td class="a">&#8594;</td>
+      <td class="s m">Deploy<br><span style="font-weight:400;font-size:8px;">Ansible</span></td>
+      <td class="a">&#8594;</td>
+      <td class="s">Verify<br><span style="font-weight:400;font-size:8px;">Health check</span></td>
+    </tr>
+    <tr>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Auto</td><td></td>
+      <td class="lb">Manual</td><td></td>
+      <td class="lb">Auto</td>
+    </tr>
+  </table>
+  <p class="small" style="margin-top:5px;">Ansible sequence: <strong>stop &#8594; deploy &#8594; enable service &#8594; start &#8594; health check &#8594; proxy connectivity check</strong>. PROD/PRE blocked in CI — requires DevOps release process.</p>
+</div>
+
+<!-- 8. Observability -->
+<div class="card">
+  <div class="ctitle"><span class="num">8</span> Observability</div>
+  <div class="g6">
+    <div class="obs"><div class="otitle">Distributed Tracing</div><div class="odesc">OpenTelemetry Java Agent auto-instruments HTTP, Spring Integration channels, and Spring Batch jobs. Trace context propagated end-to-end.</div></div>
+    <div class="obs"><div class="otitle">Metrics</div><div class="odesc">Micrometer + Prometheus — JVM, HTTP, batch, and integration metrics at /actuator/prometheus.</div></div>
+    <div class="obs"><div class="otitle">Logging</div><div class="odesc">Logback externalized outside JAR — runtime log-level changes without rebuild. Forwarded to Splunk from host or container stdout.</div></div>
+    <div class="obs"><div class="otitle">Health Check</div><div class="odesc">Spring Boot Actuator at /actuator/health. Custom smoke-test endpoint verifies all downstream services are reachable.</div></div>
+    <div class="obs"><div class="otitle">API Documentation</div><div class="odesc">Springdoc OpenAPI 2.6 — Swagger UI auto-generated from controller annotations at /swagger-ui.html.</div></div>
+    <div class="obs"><div class="otitle">Startup Recovery</div><div class="odesc">CommandLineRunner marks IN_PROGRESS records as FAILED on restart — no request silently abandoned after a crash.</div></div>
+  </div>
+</div>
+
+<!-- 9. Technology Stack -->
+<div class="card">
+  <div class="ctitle"><span class="num">9</span> Technology Stack</div>
+  <div class="techs">
+    <span class="tech">Java 17</span><span class="tech">Spring Boot 3.3.0</span>
+    <span class="tech">Spring Integration</span><span class="tech">Spring Batch 5</span>
+    <span class="tech">Spring Data JPA</span><span class="tech">Spring Retry</span>
+    <span class="tech">Spring Cache</span><span class="tech">Oracle DB (ojdbc17)</span>
+    <span class="tech">H2 (tests)</span><span class="tech">MapStruct 1.5.3</span>
+    <span class="tech">Lombok</span><span class="tech">Apache HttpClient5</span>
+    <span class="tech">EhCache 3</span><span class="tech">Jasypt</span>
+    <span class="tech">Springdoc OpenAPI 2.6</span><span class="tech">Micrometer + Prometheus</span>
+    <span class="tech">OpenTelemetry Java Agent</span><span class="tech">Splunk</span>
+    <span class="tech">Maven 3.8+</span><span class="tech">Maven Jib Plugin</span>
+    <span class="tech">GitLab CI/CD</span><span class="tech">Ansible</span>
+    <span class="tech">Docker</span><span class="tech">JUnit 4</span><span class="tech">Mockito</span>
+  </div>
+</div>
+
+</body>
+</html>

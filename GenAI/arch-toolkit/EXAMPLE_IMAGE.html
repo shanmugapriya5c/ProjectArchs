@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .hdr {
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #1a2e4a, #2b6cb0);
+      color: #fff;
+      padding: 22px 36px 18px;
+    }
+    .hdr h1  { font-size: 42px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .hdr-sub { font-size: 18px; color: rgba(255,255,255,0.78); margin-bottom: 14px; }
+    .pills   { display: flex; gap: 10px; }
+    .pill {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px; padding: 4px 16px;
+      font-size: 15px; font-weight: 600; color: #fff;
+    }
+
+    /* ── MAIN 3-COLUMN ── */
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 38% 28% 34%;
+      gap: 0;
+      overflow: hidden;
+    }
+    .col {
+      padding: 20px 24px;
+      border-right: 1px solid #d0dce8;
+      overflow: hidden;
+      background: #fff;
+    }
+    .col:last-child { border-right: none; }
+    .ctitle {
+      font-size: 16px; font-weight: 700; color: #1a2e4a;
+      text-transform: uppercase; letter-spacing: 1px;
+      padding-bottom: 8px; margin-bottom: 14px;
+      border-bottom: 2px solid #ebf4ff;
+    }
+
+    /* ── FLOW ── */
+    .flow {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 15px; line-height: 1.85; white-space: pre;
+      color: #4a5568;
+      background: #f7fafc;
+      border: 1px solid #d0dce8;
+      border-radius: 8px; padding: 16px 18px;
+    }
+    .hi { color: #2b6cb0; font-weight: 700; }
+    .gr { color: #276749; font-weight: 700; }
+    .ye { color: #b7791f; font-weight: 700; }
+    .re { color: #c0392b; font-weight: 700; }
+
+    /* ── LAYERS ── */
+    .layer { border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+    .l-in  { background: #ebf8ff; border: 1px solid #bee3f8; }
+    .l-int { background: #faf5ff; border: 1px solid #d6bcfa; }
+    .l-out { background: #f0fff4; border: 1px solid #9ae6b4; }
+    .layer h4 { font-size: 17px; font-weight: 700; color: #1a2e4a; margin-bottom: 10px; }
+    .layer ul { list-style: none; }
+    .layer li { font-size: 14px; color: #4a5568; padding: 3px 0; display: flex; gap: 8px; }
+    .layer li::before { content: "▸"; color: #2b6cb0; flex-shrink: 0; }
+
+    /* ── PATTERNS ── */
+    .pat { padding: 10px 0; border-bottom: 1px solid #e2e8f0; }
+    .pat:last-child { border-bottom: none; }
+    .pat strong { font-size: 15px; font-weight: 700; color: #1a2e4a; display: block; margin-bottom: 3px; }
+    .pat span   { font-size: 13px; color: #718096; line-height: 1.45; }
+
+    /* ── FOOTER ── */
+    .footer {
+      flex-shrink: 0;
+      background: #fff;
+      border-top: 2px solid #ebf4ff;
+      padding: 11px 28px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    .flabel { font-size: 14px; font-weight: 700; color: #2b6cb0; text-transform: uppercase; letter-spacing: 0.7px; white-space: nowrap; }
+    .sep    { width: 1px; height: 32px; background: #d0dce8; flex-shrink: 0; }
+
+    .sm-flow { display: flex; align-items: center; gap: 8px; }
+    .sm-box  { border-radius: 5px; padding: 6px 16px; font-size: 14px; font-weight: 700; white-space: nowrap; }
+    .sm-arr  { color: #a0aec0; font-size: 16px; }
+    .s-pend { background: #ebf4ff; border: 2px solid #bee3f8; color: #1a2e4a; }
+    .s-prog { background: #fffbeb; border: 2px solid #f6e05e; color: #7b5e00; }
+    .s-succ { background: #f0fff4; border: 2px solid #9ae6b4; color: #276749; }
+    .s-fail { background: #fff5f5; border: 2px solid #feb2b2; color: #c0392b; }
+    .s-term { background: #f7fafc; border: 2px solid #e2e8f0; color: #718096; }
+
+    .obs-list { display: flex; gap: 18px; }
+    .obs-item { font-size: 14px; color: #718096; white-space: nowrap; }
+    .obs-item b { color: #276749; font-weight: 600; }
+
+    .cicd { display: flex; align-items: center; gap: 7px; }
+    .cs   { font-size: 14px; font-weight: 600; color: #2b6cb0; white-space: nowrap; }
+    .ca   { color: #a0aec0; font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>Enterprise Integration Middleware</h1>
+  <div class="hdr-sub">Event-driven middleware bridging a core trading platform with downstream operational services &nbsp;·&nbsp; Java 17 &nbsp;·&nbsp; Spring Boot 3 &nbsp;·&nbsp; Spring Integration</div>
+  <div class="pills">
+    <span class="pill">Java 17</span>
+    <span class="pill">Spring Boot 3</span>
+    <span class="pill">Spring Integration</span>
+    <span class="pill">Spring Batch 5</span>
+    <span class="pill">Oracle DB</span>
+    <span class="pill">MapStruct</span>
+    <span class="pill">EhCache 3</span>
+    <span class="pill">OpenTelemetry</span>
+    <span class="pill">GitLab CI</span>
+    <span class="pill">Ansible</span>
+    <span class="pill">Docker / Jib</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- COL 1: Lifecycle -->
+  <div class="col">
+    <div class="ctitle">Async Request Lifecycle</div>
+    <div class="flow"><span class="hi">Caller</span> ──POST /api──► <span class="hi">REST Controller</span>
+  │
+  ├─ Validate (@Valid)
+  ├─ Map entity (MapStruct)
+  ├─ Save to Oracle <span class="ye">[PENDING]</span>
+  └─ Return HTTP 200 immediately
+        │
+  <span class="hi">Spring Batch</span> (async background)
+    ├─ Read PENDING records
+    ├─ Group by priority
+    └─ @Transformer → typed Message
+        │
+  <span class="hi">DynamicRecipientListRouter</span>
+    ┌───────┼───────┐
+    ▼       ▼       ▼
+  <span class="hi">Channel</span> <span class="hi">Channel</span> <span class="hi">Channel</span> ...
+    │
+  <span class="hi">OperationHandler</span>
+    ├─ EhCache lookup (ref data)
+    ├─ REST Proxy <span class="ye">[Spring Retry]</span>
+    ├─ Update Oracle <span class="gr">SUCCESS</span>/<span class="re">FAILED</span>
+    └─ POST callback (optional)</div>
+  </div>
+
+  <!-- COL 2: Layers -->
+  <div class="col">
+    <div class="ctitle">Architecture Layers</div>
+
+    <div class="layer l-in">
+      <h4>▲ Inbound Layer</h4>
+      <ul>
+        <li>Spring MVC REST Controller</li>
+        <li>Bean validation (@Valid)</li>
+        <li>MapStruct DTO mapping</li>
+        <li>Persist to Oracle (PENDING)</li>
+        <li>Return HTTP 200 immediately</li>
+      </ul>
+    </div>
+
+    <div class="layer l-int">
+      <h4>▶ Integration Layer</h4>
+      <ul>
+        <li>Spring Integration DirectChannel</li>
+        <li>DynamicRecipientListRouter</li>
+        <li>One MessageHandler per operation</li>
+        <li>ServiceHelper (cross-cutting)</li>
+        <li>Spring Retry on proxy calls</li>
+      </ul>
+    </div>
+
+    <div class="layer l-out">
+      <h4>▼ Outbound Layer</h4>
+      <ul>
+        <li>Generated OpenAPI client stubs</li>
+        <li>Hand-written proxy wrappers</li>
+        <li>Apache HttpClient5 (SSL-aware)</li>
+        <li>Reference data invoker (cached)</li>
+        <li>EhCache 3 (cache-aside)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- COL 3: Patterns -->
+  <div class="col">
+    <div class="ctitle">Key Patterns</div>
+
+    <div class="pat">
+      <strong>📩 Async Request-Reply (Outbox)</strong>
+      <span>Caller gets instant HTTP 200. Oracle acts as durable outbox — batch picks up and processes async.</span>
+    </div>
+    <div class="pat">
+      <strong>🔄 Property-Driven Message Routing</strong>
+      <span>DynamicRecipientListRouter resolves target channel at runtime from externalized property — no redeploy.</span>
+    </div>
+    <div class="pat">
+      <strong>⚡ Priority-Based Parallel Processing</strong>
+      <span>Batch groups by priority. ExecutorService processes concurrently — high-priority never starved.</span>
+    </div>
+    <div class="pat">
+      <strong>🛡 Startup Recovery (Fail-Safe)</strong>
+      <span>CommandLineRunner marks IN_PROGRESS as FAILED on restart — prevents silent data loss.</span>
+    </div>
+    <div class="pat">
+      <strong>💾 Cache-Aside (EhCache 3)</strong>
+      <span>Reference data cached via Spring Cache abstraction — eliminates redundant round-trips.</span>
+    </div>
+    <div class="pat">
+      <strong>⇄ Proxy Abstraction Layer</strong>
+      <span>Generated OpenAPI stubs wrapped with SSL, retry, error mapping — insulates from generated code churn.</span>
+    </div>
+    <div class="pat">
+      <strong>🌎 Single-Artifact Multi-Environment</strong>
+      <span>One JAR, all envs. Spring Profiles + Jasypt-encrypted credentials externalize config — zero env-specific builds.</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span class="flabel">State</span>
+  <div class="sm-flow">
+    <div class="sm-box s-pend">PENDING</div><span class="sm-arr">→</span>
+    <div class="sm-box s-prog">IN_PROGRESS</div><span class="sm-arr">→</span>
+    <div class="sm-box s-succ">SUCCESS</div><span class="sm-arr">/</span>
+    <div class="sm-box s-fail">FAILED</div><span class="sm-arr">→</span>
+    <div class="sm-box s-term">DELETED</div>
+  </div>
+
+  <div class="sep"></div>
+  <span class="flabel">Observability</span>
+  <div class="obs-list">
+    <div class="obs-item"><b>Tracing</b> OpenTelemetry</div>
+    <div class="obs-item"><b>Metrics</b> Prometheus</div>
+    <div class="obs-item"><b>Logging</b> Logback → Splunk</div>
+    <div class="obs-item"><b>Health</b> Actuator</div>
+    <div class="obs-item"><b>API Docs</b> Swagger UI</div>
+    <div class="obs-item"><b>Recovery</b> Startup check</div>
+  </div>
+
+  <div class="sep"></div>
+  <span class="flabel">CI/CD</span>
+  <div class="cicd">
+    <span class="cs">Build</span><span class="ca">→</span>
+    <span class="cs">Test</span><span class="ca">→</span>
+    <span class="cs">Image Push</span><span class="ca">→</span>
+    <span class="cs">Vuln Scan</span><span class="ca">→</span>
+    <span class="cs">Deploy</span><span class="ca">→</span>
+    <span class="cs">Verify</span>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Development Portfolio | Shanmugapriya C</title>
+    <style>
+        :root {
+            --primary: #ffffff;
+            --accent: #4f46e5;
+            --accent-light: #4338ca;
+            --surface: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --card-bg: #ffffff;
+            --tag-bg: #eef2ff;
+            --gradient-start: #4f46e5;
+            --gradient-end: #7c3aed;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f8fafc 100%);
+            padding: 80px 20px 60px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(79, 70, 229, 0.06) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(124, 58, 237, 0.04) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #1e293b, #4f46e5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .hero .tools-used {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 32px;
+        }
+
+        .tool-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: border-color 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .tool-badge:hover {
+            border-color: var(--accent);
+        }
+
+        .tool-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot-claude { background: #d97706; }
+        .dot-copilot { background: #10b981; }
+        .dot-opencode { background: #3b82f6; }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 32px rgba(79, 70, 229, 0.1);
+        }
+
+        .project-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .card-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .project-card p {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            background: var(--tag-bg);
+            border-radius: 6px;
+            font-size: 0.78rem;
+            color: #4f46e5;
+            font-weight: 500;
+        }
+
+        .card-capabilities {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .card-capabilities ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card-capabilities li {
+            padding: 4px 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .card-capabilities li::before {
+            content: '\2713';
+            color: #4f46e5;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .highlight-section {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+
+        .highlight-section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 24px;
+            color: var(--text);
+        }
+
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .workflow-step {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .workflow-step h4 {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .workflow-step p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .hero-illustration {
+            margin-top: 40px;
+        }
+
+        .approach-section {
+            margin-bottom: 60px;
+        }
+
+        .approach-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .approach-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .approach-card h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: #4f46e5;
+        }
+
+        .approach-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            background: #f8fafc;
+        }
+
+        footer a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero .subtitle { font-size: 1rem; }
+            .container { padding: 40px 16px; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .highlight-section { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>AI-Powered Development Portfolio</h1>
+            <p class="subtitle">
+                Custom AI tools, integrations, and automated workflows built by leveraging multiple AI coding assistants to accelerate enterprise software delivery.
+            </p>
+            <div class="tools-used">
+                <span class="tool-badge"><span class="dot dot-claude"></span>Claude Code</span>
+                <span class="tool-badge"><span class="dot dot-copilot"></span>GitHub Copilot</span>
+                <span class="tool-badge"><span class="dot dot-opencode"></span>OpenCode</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+
+        <div class="hero-illustration">
+            <svg viewBox="0 0 800 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:750px;margin:0 auto 48px;display:block;">
+                <!-- Central AI Brain -->
+                <circle cx="400" cy="110" r="44" fill="#eef2ff" stroke="#4f46e5" stroke-width="2"/>
+                <text x="400" y="105" text-anchor="middle" font-size="14" font-weight="600" fill="#4f46e5">AI</text>
+                <text x="400" y="122" text-anchor="middle" font-size="10" fill="#64748b">Assistant</text>
+
+                <!-- Left: Jira -->
+                <rect x="50" y="70" width="120" height="80" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+                <text x="110" y="100" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">Jira</text>
+                <text x="110" y="118" text-anchor="middle" font-size="9" fill="#64748b">Issues &amp; Tickets</text>
+                <text x="110" y="134" text-anchor="middle" font-size="9" fill="#64748b">Workflows</text>
+                <line x1="170" y1="110" x2="356" y2="110" stroke="#c7d2fe" stroke-width="1.5" stroke-dasharray="4"/>
+                <polygon points="352,106 360,110 352,114" fill="#4f46e5"/>
+
+                <!-- Top: Confluence -->
+                <rect x="310" y="0" width="180" height="50" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+                <text x="400" y="22" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">Confluence</text>
+                <text x="400" y="38" text-anchor="middle" font-size="9" fill="#64748b">Documentation</text>
+                <line x1="400" y1="50" x2="400" y2="66" stroke="#c7d2fe" stroke-width="1.5" stroke-dasharray="4"/>
+                <polygon points="396,62 400,70 404,62" fill="#4f46e5"/>
+
+                <!-- Right: GitLab -->
+                <rect x="630" y="70" width="120" height="80" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+                <text x="690" y="100" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">GitLab</text>
+                <text x="690" y="118" text-anchor="middle" font-size="9" fill="#64748b">Code &amp; CI/CD</text>
+                <text x="690" y="134" text-anchor="middle" font-size="9" fill="#64748b">Merge Requests</text>
+                <line x1="444" y1="110" x2="630" y2="110" stroke="#c7d2fe" stroke-width="1.5" stroke-dasharray="4"/>
+                <polygon points="626,106 634,110 626,114" fill="#4f46e5"/>
+
+                <!-- Bottom: dbt / Data Platform -->
+                <rect x="310" y="170" width="180" height="50" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1.5"/>
+                <text x="400" y="192" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">Data Platform</text>
+                <text x="400" y="208" text-anchor="middle" font-size="9" fill="#64748b">dbt &amp; Schema Generation</text>
+                <line x1="400" y1="154" x2="400" y2="170" stroke="#c7d2fe" stroke-width="1.5" stroke-dasharray="4"/>
+                <polygon points="396,166 400,174 404,166" fill="#4f46e5"/>
+
+                <!-- Decorative arcs -->
+                <circle cx="400" cy="110" r="58" fill="none" stroke="#eef2ff" stroke-width="1"/>
+            </svg>
+        </div>
+
+        <div class="section-header">
+            <h2>Projects</h2>
+            <p>Each project demonstrates practical AI-assisted development for enterprise workflows</p>
+        </div>
+
+        <div class="projects-grid">
+
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="card-icon">&#128295;</div>
+                    <h3>Jira Integration Tool</h3>
+                </div>
+                <p>
+                    A full-featured Jira REST API integration built as an AI tool plugin. Enables AI assistants to read tickets, create issues, manage workflows, and log time &mdash; all from natural language commands.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">TypeScript</span>
+                    <span class="tag">REST API</span>
+                    <span class="tag">Jira</span>
+                    <span class="tag">Plugin Architecture</span>
+                </div>
+                <div class="card-capabilities">
+                    <ul>
+                        <li>30+ operations: CRUD issues, transitions, comments, worklogs</li>
+                        <li>Bulk operations &amp; subtask management</li>
+                        <li>JQL search with field filtering</li>
+                        <li>Bidirectional workflow: read ticket &rarr; implement &rarr; update status</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="card-icon">&#128196;</div>
+                    <h3>Confluence Documentation Tool</h3>
+                </div>
+                <p>
+                    AI-accessible Confluence integration that enables automated documentation. After implementing a feature, the AI agent auto-documents changes in the appropriate wiki pages.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">TypeScript</span>
+                    <span class="tag">Confluence API</span>
+                    <span class="tag">HTML/Storage Format</span>
+                </div>
+                <div class="card-capabilities">
+                    <ul>
+                        <li>Page CRUD with version management</li>
+                        <li>Append-only updates (non-destructive edits)</li>
+                        <li>CQL search across spaces</li>
+                        <li>Comments, attachments, and child page navigation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="card-icon">&#128421;</div>
+                    <h3>GitLab DevOps Tool</h3>
+                </div>
+                <p>
+                    Complete GitLab integration covering the full development lifecycle &mdash; from branch creation through merge request to CI/CD pipeline monitoring.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">TypeScript</span>
+                    <span class="tag">GitLab API v4</span>
+                    <span class="tag">CI/CD</span>
+                </div>
+                <div class="card-capabilities">
+                    <ul>
+                        <li>Branch management &amp; merge request lifecycle</li>
+                        <li>Pipeline triggering and status monitoring</li>
+                        <li>Automated commit, push, and MR creation</li>
+                        <li>Code review approval workflow</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="card-icon">&#9889;</div>
+                    <h3>Automated dbt Model Generator</h3>
+                </div>
+                <p>
+                    An AI skill that auto-detects new data models, fetches live schema from the data platform, and generates fully-configured dbt source models with proper documentation.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">dbt</span>
+                    <span class="tag">MCP Protocol</span>
+                    <span class="tag">Schema Introspection</span>
+                    <span class="tag">Code Generation</span>
+                </div>
+                <div class="card-capabilities">
+                    <ul>
+                        <li>Auto-detects source tables from SQL references</li>
+                        <li>Live schema fetching via MCP server connection</li>
+                        <li>Generates models following project conventions</li>
+                        <li>Updates YAML source configs and JSON schema docs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="card-icon">&#127917;</div>
+                    <h3>Custom AI Modes &amp; Personas</h3>
+                </div>
+                <p>
+                    Purpose-built AI personas with controlled temperature, tool restrictions, and domain-specific instructions for different development contexts.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">Prompt Engineering</span>
+                    <span class="tag">AI Configuration</span>
+                    <span class="tag">Mode System</span>
+                </div>
+                <div class="card-capabilities">
+                    <ul>
+                        <li>Developer mode: full tool access, balanced creativity</li>
+                        <li>Review mode: read-only, focused on quality &amp; security</li>
+                        <li>Build mode: low temperature, deterministic output</li>
+                        <li>Domain-specific dbt developer persona</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="card-icon">&#128268;</div>
+                    <h3>Environment &amp; Plugin System</h3>
+                </div>
+                <p>
+                    Custom plugin architecture for AI tool runtime configuration &mdash; including secure environment variable loading and shell integration for secret management.
+                </p>
+                <div class="card-tags">
+                    <span class="tag">TypeScript</span>
+                    <span class="tag">Plugin API</span>
+                    <span class="tag">Security</span>
+                </div>
+                <div class="card-capabilities">
+                    <ul>
+                        <li>Auto-loads env vars from project-level .env files</li>
+                        <li>Shell environment injection for child processes</li>
+                        <li>PAT token management for enterprise APIs</li>
+                        <li>Extensible plugin hook system</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="highlight-section">
+            <h2>End-to-End Automated Workflow</h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px; font-size: 0.92rem;">
+                A single natural language command triggers the entire development lifecycle:
+            </p>
+            <div class="workflow-steps">
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <h4>Read Ticket</h4>
+                    <p>AI reads Jira issue description and extracts requirements</p>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <h4>Implement</h4>
+                    <p>Generates code, models, and configs following project conventions</p>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <h4>Commit &amp; MR</h4>
+                    <p>Creates branch, commits changes, opens merge request on GitLab</p>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">4</div>
+                    <h4>Document</h4>
+                    <p>Updates Confluence page and adds implementation details to Jira</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="approach-section">
+            <div class="section-header">
+                <h2>Development Approach</h2>
+                <p>How I leverage multiple AI assistants for maximum productivity</p>
+            </div>
+            <div class="approach-grid">
+                <div class="approach-card">
+                    <h4>GitHub Copilot</h4>
+                    <p>Used for rapid inline code completion, boilerplate generation, and exploring API patterns. Ideal for iterating quickly on TypeScript tool implementations.</p>
+                </div>
+                <div class="approach-card">
+                    <h4>Claude Code</h4>
+                    <p>Used for complex architectural decisions, multi-file refactoring, and designing tool schemas. Excels at understanding full project context and generating cohesive solutions.</p>
+                </div>
+                <div class="approach-card">
+                    <h4>OpenCode</h4>
+                    <p>The runtime platform where these tools execute. Used for building the plugin ecosystem, custom skills, MCP integrations, and defining AI operational modes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-section">
+            <h2>Technical Highlights</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-top: 20px;">
+                <div>
+                    <h4 style="color: #4f46e5; margin-bottom: 8px;">Languages &amp; Frameworks</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem;">TypeScript, Python, SQL, Jinja, YAML, dbt, Dagster, Docker</p>
+                </div>
+                <div>
+                    <h4 style="color: #4f46e5; margin-bottom: 8px;">APIs &amp; Protocols</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem;">REST APIs, MCP (Model Context Protocol), PAT Authentication, CQL</p>
+                </div>
+                <div>
+                    <h4 style="color: #4f46e5; margin-bottom: 8px;">Enterprise Tools</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem;">Jira, Confluence, GitLab, Dremio, Docker, CI/CD Pipelines</p>
+                </div>
+                <div>
+                    <h4 style="color: #4f46e5; margin-bottom: 8px;">AI &amp; Automation</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem;">Prompt Engineering, Tool Use Design, Plugin Systems, Custom AI Modes</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Built with AI-assisted development &mdash; Claude Code, GitHub Copilot &amp; OpenCode</p>
+        <p style="margin-top: 8px;">Shanmugapriya C &bull; Solution Architect &bull; 2025</p>
+    </footer>
+</body>
+</html>
