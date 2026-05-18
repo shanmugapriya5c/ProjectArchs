@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; padding: 16px; }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    page-break-inside: avoid;
+  }
+  .ctitle {
+    font-size: 15px; font-weight: 700; color: #1a2e4a;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .num {
+    background: linear-gradient(135deg, #1a2e4a, #2b6cb0);
+    color: #fff; border-radius: 50%;
+    width: 22px; height: 22px; display: inline-flex;
+    align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  .desc { font-size: 12.5px; color: #4a5568; line-height: 1.6; margin-bottom: 12px; }
+
+  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .box { border-radius: 7px; padding: 11px 13px; }
+  .b-blue   { background: #ebf8ff; border: 1px solid #bee3f8; }
+  .b-purple { background: #faf5ff; border: 1px solid #d6bcfa; }
+  .b-green  { background: #f0fff4; border: 1px solid #9ae6b4; }
+  .b-gray   { background: #f7fafc; border: 1px solid #d0dce8; }
+  .b-orange { background: #fffaf0; border: 1px solid #fbd38d; }
+
+  .box h4 { font-size: 12px; font-weight: 700; color: #1a2e4a; margin-bottom: 7px; }
+  .box ul  { list-style: none; }
+  .box li  { font-size: 11.5px; color: #4a5568; padding: 2px 0; padding-left: 12px; position: relative; }
+  .box li::before { content: "▸"; color: #2b6cb0; position: absolute; left: 0; }
+
+  .b-side { border-radius: 7px; padding: 11px 13px; background: #f7fafc; border: 1px solid #d0dce8; }
+  .bt { font-size: 12px; font-weight: 700; color: #1a2e4a; margin-bottom: 5px; }
+  .bd { font-size: 11.5px; color: #718096; line-height: 1.55; }
+
+  /* Pipeline flow layers */
+  .pipeline { display: flex; align-items: stretch; gap: 0; margin-bottom: 10px; }
+  .plyr {
+    flex: 1; border-radius: 7px; padding: 11px 12px; text-align: center;
+    font-size: 11.5px; font-weight: 700; color: #1a2e4a;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .plyr span { font-size: 10.5px; font-weight: 400; color: #718096; }
+  .plyr-arrow { display: flex; align-items: center; color: #a0aec0; font-size: 18px; padding: 0 4px; flex-shrink: 0; }
+  .l-src  { background: #ebf8ff; border: 2px solid #2b6cb0; }
+  .l-mat  { background: #faf5ff; border: 2px solid #805ad5; }
+  .l-vd   { background: #fffaf0; border: 2px solid #d69e2e; }
+  .l-dim  { background: #f0fff4; border: 2px solid #38a169; }
+  .l-fct  { background: #fff5f5; border: 2px solid #e53e3e; }
+  .l-view { background: #f7fafc; border: 2px solid #4a5568; }
+
+  /* Schedule table */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .tbl th { background: #1a2e4a; color: #fff; padding: 6px 9px; text-align: left; font-weight: 600; }
+  .tbl td { padding: 5px 9px; border-bottom: 1px solid #e2e8f0; color: #4a5568; vertical-align: top; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:nth-child(even) td { background: #f7fafc; }
+  .badge-run { display: inline-block; background: #f0fff4; border: 1px solid #9ae6b4; color: #276749; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700; }
+  .badge-stp { display: inline-block; background: #f7fafc; border: 1px solid #d0dce8; color: #718096; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700; }
+
+  /* Pattern list */
+  .plist { list-style: none; }
+  .plist li { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f4f8; }
+  .plist li:last-child { border-bottom: none; }
+  .ic { font-size: 16px; flex-shrink: 0; width: 22px; text-align: center; }
+  .plist strong { font-size: 12.5px; font-weight: 700; color: #1a2e4a; display: block; margin-bottom: 2px; }
+  .plist span { font-size: 11.5px; color: #718096; line-height: 1.5; }
+
+  /* Location grid */
+  .loc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .loc { border-radius: 7px; padding: 9px 11px; background: #f7fafc; border: 1px solid #d0dce8; }
+  .loc.active { background: #faf5ff; border: 2px solid #805ad5; }
+  .loc-name { font-size: 12px; font-weight: 700; color: #1a2e4a; }
+  .loc-port { font-size: 10.5px; color: #805ad5; font-weight: 600; }
+  .loc-desc { font-size: 11px; color: #718096; margin-top: 2px; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .card { box-shadow: none; border: 1px solid #e2e8f0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CARD 1: System Overview -->
+<div class="card">
+  <div class="ctitle"><span class="num">1</span> System Overview</div>
+  <p class="desc">Two-project Dagster code location system. The <strong>dbt canonical pipeline</strong> builds a canonical dimensional model on top of the source trading system (SQL Server), materialised as Iceberg tables in Dremio. The <strong>Dagster hub</strong> is a central K8s orchestration control plane that federates the canonical pipeline and other data projects via gRPC, providing a single UI, PostgreSQL-backed run history, and K8s job execution across all locations.</p>
+  <div class="g3">
+    <div class="box b-blue">
+      <h4>Data Source — SQL Server</h4>
+      <ul>
+        <li>Source system schema</li>
+        <li>105+ registered source tables</li>
+        <li>Trading: trades, deals, parcels, voyages</li>
+        <li>Financial: invoices, claims, swaps, options</li>
+        <li>Reference: currencies, countries, desks, grades</li>
+        <li>Read via Dremio SQL Server connector</li>
+      </ul>
+    </div>
+    <div class="box b-purple">
+      <h4>dbt Canonical Pipeline — Code Location</h4>
+      <ul>
+        <li>dbt-core 1.10.20 + dbt-dremio 1.10.0</li>
+        <li>Dagster 1.12.21 — gRPC code server, port 4004</li>
+        <li>431 dbt models across 5 layers</li>
+        <li>8+ Dagster jobs, 5 schedules, 1 failure sensor</li>
+        <li>Canonical SQL views (27 dims, 51 facts)</li>
+        <li>Test harness + email reporting</li>
+      </ul>
+    </div>
+    <div class="box b-green">
+      <h4>Dagster Hub — Orchestration Control Plane</h4>
+      <ul>
+        <li>Dagster 1.12.21 — K8s webserver, port 3000</li>
+        <li>Federates 3–6 code locations via gRPC</li>
+        <li>PostgreSQL 15 — run/event/schedule storage</li>
+        <li>K8sRunLauncher — spawns K8s jobs per run</li>
+        <li>QueuedRunCoordinator — max 10 concurrent</li>
+        <li>DagsterDaemonScheduler</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CARD 2: dbt Pipeline Layers -->
+<div class="card">
+  <div class="ctitle"><span class="num">2</span> dbt Pipeline Layers</div>
+  <p class="desc">Five sequential dbt layers materialised in Dremio. Source tables are loaded as Iceberg tables (S3-backed), bridged through vdata pass-through views, then transformed into dimensional and fact views for analytics consumption.</p>
+  <div class="pipeline">
+    <div class="plyr l-src">tables<span>97 models</span><span>Iceberg tables</span><span>tag: source_tables</span></div>
+    <div class="plyr-arrow">→</div>
+    <div class="plyr l-vd">vdata<span>97 models</span><span>Pass-through views</span><span>tag: vdata</span></div>
+    <div class="plyr-arrow">→</div>
+    <div class="plyr l-dim">dimsmodel<span>26 models</span><span>Dimension views</span><span>tag: dimsmodel</span></div>
+    <div class="plyr-arrow">→</div>
+    <div class="plyr l-fct">factsmodel<span>50 models</span><span>Fact views</span><span>tag: factsmodel</span></div>
+    <div class="plyr-arrow">→</div>
+    <div class="plyr l-view">viewsmodel<span>157 models</span><span>Business views</span><span>tag: viewsmodel</span></div>
+    <div class="plyr-arrow">+</div>
+    <div class="plyr l-mat">QV views<span>4 models</span><span>QV layer</span><span>tag: qv</span></div>
+  </div>
+  <div class="g2">
+    <div class="b-side">
+      <div class="bt">Two-Layer Design</div>
+      <div class="bd"><strong>canonical_dm/v4/</strong> — Raw Dremio SQL views (source of truth for business logic). Direct table refs like <code>SourceDB.schema.tblTradesHeader</code>. Not dbt Jinja.<br/><br/><strong>models/</strong> — dbt execution layer wrapping canonical logic. Uses <code>{{ ref() }}</code> and <code>{{ source() }}</code> for Dagster asset graph construction and lineage.</div>
+    </div>
+    <div class="b-side">
+      <div class="bt">Execution Order &amp; Configuration</div>
+      <div class="bd">Sequential: tables → vdata → dimsmodel → factsmodel → viewsmodel<br/><br/>dbt config: 8 threads, profiles.yml for dev/qa/preprod/prod targets. Dremio port 9047 (SSL). Object storage: S3. Schema: <code>materialize</code> (tables), <code>canonical.v4.dims</code> / <code>canonical.v4.facts</code> (views).</div>
+    </div>
+  </div>
+</div>
+
+<!-- CARD 3: Dagster Jobs & Schedules -->
+<div class="card">
+  <div class="ctitle"><span class="num">3</span> Dagster Jobs &amp; Schedules</div>
+  <div class="g2">
+    <table class="tbl">
+      <tr><th>Job</th><th>Layer / Tag</th></tr>
+      <tr><td>tables_only</td><td>source_tables</td></tr>
+      <tr><td>vdata_only</td><td>vdata</td></tr>
+      <tr><td>v4_dims_only</td><td>dimsmodel</td></tr>
+      <tr><td>v4_facts_only</td><td>factsmodel</td></tr>
+      <tr><td>v4_views_only</td><td>viewsmodel</td></tr>
+      <tr><td>qv_views_only</td><td>qv + views</td></tr>
+      <tr><td>sequential_12h</td><td>Full pipeline (all layers)</td></tr>
+      <tr><td>test_harness_email_report_job</td><td>Test harness + email</td></tr>
+    </table>
+    <table class="tbl">
+      <tr><th>Schedule</th><th>Cron</th><th>Status</th></tr>
+      <tr><td>sequential_12h_schedule</td><td>0 */12 * * *</td><td><span class="badge-run">RUNNING</span></td></tr>
+      <tr><td>qv_views_hourly_schedule</td><td>0 * * * *</td><td><span class="badge-run">RUNNING</span></td></tr>
+      <tr><td>test_harness_email_report_schedule</td><td>0 10,18 * * *</td><td><span class="badge-run">RUNNING</span></td></tr>
+      <tr><td>stage_audit_loader_schedule</td><td>30 0 * * *</td><td><span class="badge-stp">STOPPED</span></td></tr>
+      <tr><td>test_scheduler</td><td>* * * * *</td><td><span class="badge-stp">STOPPED</span></td></tr>
+    </table>
+  </div>
+  <div class="g2" style="margin-top:10px">
+    <div class="b-side">
+      <div class="bt">Failure Sensor</div>
+      <div class="bd"><code>email_failure_sensor</code> (@dg.run_failure_sensor) — fires on any job failure across the code location. Sends HTML email via SMTP (port 25) to 9 configured recipients. SSL verification disabled (internal mail relay).</div>
+    </div>
+    <div class="b-side">
+      <div class="bt">Materialization Report</div>
+      <div class="bd">After each successful run of report-enabled jobs, <code>success_report.py</code> emails a materialization summary (row counts, execution times per model). Triggered via <code>REPORT_ENABLED_JOBS</code> list in definitions.py.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CARD 4: Dagster Hub Federation -->
+<div class="card">
+  <div class="ctitle"><span class="num">4</span> Dagster Hub — Code Location Federation</div>
+  <p class="desc">The Dagster hub is a pure orchestration control plane with no assets of its own. It loads external code locations via gRPC, providing one unified UI, run history, and scheduler across all data projects in the organisation.</p>
+  <div class="loc-grid">
+    <div class="loc"><div class="loc-name">trading_canonical</div><div class="loc-port">:4000</div><div class="loc-desc">Trading canonical model</div></div>
+    <div class="loc"><div class="loc-name">orchestrator</div><div class="loc-port">:4001</div><div class="loc-desc">Workflow orchestration</div></div>
+    <div class="loc"><div class="loc-name">ref_data_elt</div><div class="loc-port">:4002</div><div class="loc-desc">Reference Data ELT (dev only)</div></div>
+    <div class="loc active"><div class="loc-name">dbt-canonical-pipeline ★</div><div class="loc-port">:4004</div><div class="loc-desc">This project — all envs</div></div>
+    <div class="loc"><div class="loc-name">risk_pipeline</div><div class="loc-port">:4006</div><div class="loc-desc">Risk calculations (dev only)</div></div>
+    <div class="loc"><div class="loc-name">data_warehouse</div><div class="loc-port">:4007</div><div class="loc-desc">Data warehouse (dev only)</div></div>
+  </div>
+  <div class="g2" style="margin-top:10px">
+    <div class="b-side">
+      <div class="bt">Hub Instance Config</div>
+      <div class="bd">PostgreSQL 15 — event log, run storage, schedule storage.<br/>K8sRunLauncher — spawns one K8s Job per pipeline run.<br/>QueuedRunCoordinator — max 10 concurrent runs.<br/>DagsterDaemonScheduler — polls every 30s.<br/>Compute logs: <code>/apps/dagster/logs</code>.</div>
+    </div>
+    <div class="b-side">
+      <div class="bt">K8s Executor Sizes</div>
+      <div class="bd">
+        <strong>small</strong> — CPU 500m/1000m · Mem 1Gi/2Gi<br/>
+        <strong>medium</strong> — CPU 1000m/2000m · Mem 2Gi/4Gi<br/>
+        <strong>large</strong> — CPU 2000m/4000m · Mem 4Gi/8Gi<br/>
+        <strong>xlarge</strong> — CPU 4000m/8000m · Mem 8Gi/16Gi
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CARD 5: Key Architecture Patterns -->
+<div class="card">
+  <div class="ctitle"><span class="num">5</span> Key Architecture Patterns</div>
+  <ul class="plist">
+    <li><span class="ic">🔌</span><div><strong>gRPC Code Location Federation</strong><span>The Dagster hub loads each project as an external gRPC server (workspace-{env}.yaml). The canonical pipeline code location runs <code>dagster code-server start -m dagster_definitions.definitions -h 0.0.0.0 -p 4004</code> inside its own K8s pod. The hub connects at runtime — no code bundling required.</span></div></li>
+    <li><span class="ic">🏗️</span><div><strong>Two-Layer dbt Design</strong><span>canonical_dm/v4/ holds the source-of-truth Dremio SQL (raw, no Jinja). models/ is the dbt execution wrapper using {{ ref() }} / {{ source() }}. Business logic changes happen in canonical SQL; dbt layer drives Dagster asset graph and lineage only.</span></div></li>
+    <li><span class="ic">🏷️</span><div><strong>Tag-Driven Job Selection</strong><span>Every dbt model is tagged (source_tables, vdata, dimsmodel, factsmodel, viewsmodel, qv). Dagster jobs use AssetSelection.tag() — no manual asset enumeration. Adding a new model with the right tag automatically includes it in the correct job.</span></div></li>
+    <li><span class="ic">🧊</span><div><strong>Iceberg-Backed Source Tables</strong><span>97 source table models are materialised as Apache Iceberg tables on S3. This gives ACID transactions, time-travel, schema evolution, and efficient incremental loads. Downstream vdata, dim, and fact models read from Iceberg via Dremio views.</span></div></li>
+    <li><span class="ic">📊</span><div><strong>Audit Macro System</strong><span>9 dbt macros provide audit logging: stage_insert_audit_log, stage_audit_loader_to_audit_main, get_last_load_time, get_source_rowcount / get_target_rowcount. Source vs. target row counts compared and logged per run for data quality tracking.</span></div></li>
+    <li><span class="ic">🧪</span><div><strong>External Test Harness</strong><span>scripts/test_harness.py validates Iceberg materialisations against SQL Server source: row count comparison (threshold %), column metadata check, SELECT accessibility. Outputs HTML/JSON report, optionally emailed. Runs as a scheduled Dagster job (10:00 &amp; 18:00 UTC).</span></div></li>
+  </ul>
+</div>
+
+<!-- CARD 6: Technology Stack -->
+<div class="card">
+  <div class="ctitle"><span class="num">6</span> Technology Stack</div>
+  <div class="g2">
+    <table class="tbl">
+      <tr><th>Component</th><th>Technology / Version</th></tr>
+      <tr><td>dbt Core</td><td>dbt-core 1.10.20</td></tr>
+      <tr><td>dbt Adapter</td><td>dbt-dremio 1.10.0</td></tr>
+      <tr><td>Orchestration</td><td>Dagster 1.12.21 · dagster-dbt 0.28.21</td></tr>
+      <tr><td>Dagster K8s</td><td>dagster-k8s 0.28.21</td></tr>
+      <tr><td>Dagster PostgreSQL</td><td>dagster-postgres 0.28.21</td></tr>
+      <tr><td>Data Lakehouse</td><td>Dremio (dremio+flight, port 9047, SSL)</td></tr>
+      <tr><td>Table Format</td><td>Apache Iceberg (S3-backed)</td></tr>
+      <tr><td>Source System</td><td>SQL Server (source trading system schema)</td></tr>
+      <tr><td>Metadata DB</td><td>PostgreSQL 15 (Dagster hub)</td></tr>
+      <tr><td>Data Validation</td><td>great-expectations 1.15.1</td></tr>
+      <tr><td>Data Transport</td><td>pyarrow 23.0.1 · boto3 1.28.21</td></tr>
+      <tr><td>Python</td><td>3.12+</td></tr>
+      <tr><td>Container</td><td>Docker · Helm · Rancher K8s</td></tr>
+      <tr><td>CI/CD</td><td>GitLab (Semgrep → Podman build → Nexus → Rancher Helm deploy)</td></tr>
+    </table>
+    <table class="tbl">
+      <tr><th>Setting</th><th>Value</th></tr>
+      <tr><td>Code server port</td><td>4004 (dbt pipeline gRPC)</td></tr>
+      <tr><td>Hub webserver port</td><td>3000</td></tr>
+      <tr><td>dbt threads</td><td>8</td></tr>
+      <tr><td>Total dbt models</td><td>431 (97+97+26+50+157+4)</td></tr>
+      <tr><td>Source tables</td><td>105+ (SQL Server)</td></tr>
+      <tr><td>Canonical dims</td><td>27 (canonical_dm/v4/dims/)</td></tr>
+      <tr><td>Canonical facts</td><td>51 (canonical_dm/v4/facts/)</td></tr>
+      <tr><td>Max concurrent runs</td><td>10 (QueuedRunCoordinator)</td></tr>
+      <tr><td>Schedules active</td><td>3 of 5</td></tr>
+      <tr><td>Pipeline frequency</td><td>Every 12h (full) / hourly (QV)</td></tr>
+      <tr><td>K8s executor</td><td>small / medium / large / xlarge</td></tr>
+      <tr><td>Environments</td><td>dev, qa, preprod, prod, dr</td></tr>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
