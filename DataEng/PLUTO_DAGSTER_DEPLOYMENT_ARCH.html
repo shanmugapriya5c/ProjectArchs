@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Deployment Architecture - Pluto Dagster Canonical Pipeline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ffffff;
+      color: #1a2e4a;
+      padding: 30px;
+      width: 1200px;
+      margin: 0 auto;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .title-bar {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px 30px;
+      background: linear-gradient(135deg, #1a2e4a, #553c9a);
+      border-radius: 12px;
+      color: #fff;
+    }
+    .title-bar h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
+    .title-bar p { font-size: 12px; opacity: 0.9; }
+    .title-bar .tech-line {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .title-bar .tech-pill {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 9px;
+      font-weight: 600;
+    }
+
+    /* Main layout - use flexbox rows */
+    .row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .zone {
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .zone-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .comp {
+      background: #ffffff;
+      border: 2px solid #d0dce8;
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .comp-icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .comp-name {
+      font-size: 10px;
+      font-weight: 700;
+      color: #1a2e4a;
+      margin-bottom: 2px;
+    }
+    .comp-detail {
+      font-size: 8px;
+      color: #718096;
+      line-height: 1.4;
+    }
+
+    .port-badge {
+      display: inline-block;
+      background: #805ad5;
+      color: #fff;
+      font-size: 7px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-top: 3px;
+    }
+
+    .flex-col { display: flex; flex-direction: column; gap: 8px; }
+    .flex-row { display: flex; gap: 8px; }
+
+    /* Zone colors */
+    .zone-source {
+      background: #ebf8ff;
+      border: 2px dashed #90cdf4;
+      flex: 1;
+    }
+    .zone-source .zone-label { background: #bee3f8; color: #1a365d; }
+
+    .zone-cicd {
+      background: #fef9e7;
+      border: 2px dashed #f6e05e;
+      flex: 1.3;
+    }
+    .zone-cicd .zone-label { background: #fefcbf; color: #744210; }
+
+    .zone-hub {
+      background: #faf5ff;
+      border: 2px solid #d6bcfa;
+      flex: 1;
+    }
+    .zone-hub .zone-label { background: #e9d8fd; color: #553c9a; }
+
+    .zone-locations {
+      background: #f0fff4;
+      border: 2px solid #9ae6b4;
+      flex: 1.4;
+    }
+    .zone-locations .zone-label { background: #c6f6d5; color: #22543d; }
+
+    .zone-lakehouse {
+      background: #fffaf0;
+      border: 2px dashed #fbd38d;
+      flex: 1.6;
+    }
+    .zone-lakehouse .zone-label { background: #fefcbf; color: #744210; }
+
+    .zone-monitoring {
+      background: #fff5f5;
+      border: 2px dashed #feb2b2;
+      flex: 1;
+    }
+    .zone-monitoring .zone-label { background: #fed7d7; color: #9b2c2c; }
+
+    /* K8s wrapper */
+    .k8s-wrapper {
+      border: 2px solid #a0aec0;
+      border-radius: 10px;
+      background: #f7fafc;
+      padding: 14px;
+    }
+    .k8s-wrapper > .zone-label { background: #e2e8f0; color: #2d3748; }
+
+    /* Env badges */
+    .env-badges {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    .env-badge {
+      font-size: 7px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    .env-dev { background: #e6fffa; color: #234e52; border: 1px solid #81e6d9; }
+    .env-qa { background: #ebf8ff; color: #2a4365; border: 1px solid #90cdf4; }
+    .env-pre { background: #fefcbf; color: #744210; border: 1px solid #f6e05e; }
+    .env-prod { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; }
+    .env-dr { background: #e2e8f0; color: #2d3748; border: 1px solid #a0aec0; }
+
+    /* Pipeline strip */
+    .pipeline-strip {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: 10px;
+      padding: 8px;
+      background: #f7fafc;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
+    .p-step {
+      flex: 1;
+      text-align: center;
+      padding: 5px 3px;
+      font-size: 8px;
+      font-weight: 700;
+      border-radius: 4px;
+      border: 1.5px solid;
+    }
+    .p-arrow { font-size: 10px; color: #a0aec0; padding: 0 3px; flex-shrink: 0; }
+    .ps-src { background: #ebf8ff; border-color: #2b6cb0; color: #1a365d; }
+    .ps-vd { background: #fffaf0; border-color: #d69e2e; color: #744210; }
+    .ps-dim { background: #f0fff4; border-color: #38a169; color: #22543d; }
+    .ps-fct { background: #fff5f5; border-color: #e53e3e; color: #742a2a; }
+    .ps-vw { background: #f7fafc; border-color: #4a5568; color: #2d3748; }
+
+    /* Flow arrows between rows */
+    .flow-arrow {
+      text-align: center;
+      color: #a0aec0;
+      font-size: 20px;
+      margin: -4px 0;
+      letter-spacing: 40px;
+    }
+    .flow-label {
+      font-size: 8px;
+      font-weight: 600;
+      color: #718096;
+      text-align: center;
+      margin: -2px 0 2px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 9px;
+      color: #a0aec0;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+    }
+    .footer strong { color: #4a5568; }
+  </style>
+</head>
+<body>
+
+<div class="title-bar">
+  <h1>Deployment Architecture</h1>
+  <p>Pluto Canonical Pipeline &mdash; Dagster + dbt + Dremio Data Lakehouse Platform</p>
+  <div class="tech-line">
+    <span class="tech-pill">Dagster 1.12</span>
+    <span class="tech-pill">dbt-core 1.10</span>
+    <span class="tech-pill">Dremio</span>
+    <span class="tech-pill">Apache Iceberg</span>
+    <span class="tech-pill">S3</span>
+    <span class="tech-pill">PostgreSQL 15</span>
+    <span class="tech-pill">Kubernetes</span>
+    <span class="tech-pill">Helm</span>
+    <span class="tech-pill">GitLab CI</span>
+    <span class="tech-pill">Python 3.12</span>
+  </div>
+</div>
+
+<!-- Row 1: Source Systems + CI/CD -->
+<div class="row">
+  <div class="zone zone-source">
+    <div class="zone-label">Source Systems</div>
+    <div class="flex-col">
+      <div class="comp">
+        <span class="comp-icon">&#128451;</span>
+        <div class="comp-name">SQL Server</div>
+        <div class="comp-detail">Source Trading System &bull; 105+ tables<br/>Trades, Deals, Parcels, Voyages, Invoices</div>
+      </div>
+      <div class="comp">
+        <span class="comp-icon">&#128218;</span>
+        <div class="comp-name">Reference Data</div>
+        <div class="comp-detail">Currencies, Countries, Desks, Grades</div>
+      </div>
+    </div>
+  </div>
+  <div class="zone zone-cicd">
+    <div class="zone-label">CI/CD Pipeline</div>
+    <div class="flex-col">
+      <div class="comp" style="border-color: #f6e05e;">
+        <span class="comp-icon">&#128736;</span>
+        <div class="comp-name">GitLab CI</div>
+        <div class="comp-detail">Semgrep Scan &rarr; Podman Build &rarr; Nexus Push &rarr; Rancher Helm Deploy</div>
+      </div>
+      <div class="flex-row">
+        <div class="comp" style="flex: 1; border-color: #f6e05e;">
+          <span class="comp-icon" style="font-size: 16px;">&#128230;</span>
+          <div class="comp-name">Nexus Registry</div>
+          <div class="comp-detail">Container Images</div>
+        </div>
+        <div class="comp" style="flex: 1; border-color: #f6e05e;">
+          <span class="comp-icon" style="font-size: 16px;">&#9784;</span>
+          <div class="comp-name">Helm Charts</div>
+          <div class="comp-detail">K8s Deployment Specs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="flow-arrow">&#8595; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &#8595;</div>
+<div class="flow-label" style="display: flex; justify-content: space-around; padding: 0 80px;">
+  <span>Dremio SQL Server Connector</span>
+  <span>Helm Deploy to Rancher K8s</span>
+</div>
+
+<!-- Row 2: Kubernetes Cluster -->
+<div class="k8s-wrapper" style="margin-bottom: 16px;">
+  <div class="zone-label" style="background: #e2e8f0; color: #2d3748; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 4px; display: inline-block; margin-bottom: 12px;">Kubernetes Cluster (Rancher)</div>
+
+  <div class="row" style="margin-bottom: 0;">
+    <!-- Dagster Hub -->
+    <div class="zone zone-hub" style="border-radius: 8px;">
+      <div class="zone-label">Dagster Hub &mdash; Control Plane</div>
+      <div class="flex-col">
+        <div class="comp" style="border-color: #d6bcfa;">
+          <span class="comp-icon">&#127760;</span>
+          <div class="comp-name">Dagster Webserver</div>
+          <div class="comp-detail">Unified UI &bull; Run History &bull; Schedule Mgmt</div>
+          <span class="port-badge">:3000</span>
+        </div>
+        <div class="flex-row">
+          <div class="comp" style="flex: 1; border-color: #d6bcfa;">
+            <span class="comp-icon" style="font-size: 16px;">&#9203;</span>
+            <div class="comp-name">Daemon</div>
+            <div class="comp-detail">Scheduler (30s poll)<br/>Sensor Tick<br/>Run Queue</div>
+          </div>
+          <div class="comp" style="flex: 1; border-color: #d6bcfa;">
+            <span class="comp-icon" style="font-size: 16px;">&#128640;</span>
+            <div class="comp-name">K8s Run Launcher</div>
+            <div class="comp-detail">Max 10 concurrent<br/>1 Job per run<br/>4 executor sizes</div>
+          </div>
+        </div>
+        <div class="comp" style="border-color: #d6bcfa;">
+          <span class="comp-icon" style="font-size: 16px;">&#128451;</span>
+          <div class="comp-name">PostgreSQL 15</div>
+          <div class="comp-detail">Event Log &bull; Run Storage &bull; Schedule State</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code Locations -->
+    <div class="zone zone-locations" style="border-radius: 8px;">
+      <div class="zone-label">Code Locations (gRPC Servers)</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+        <div class="comp" style="border-color: #805ad5; background: #fdfaff;">
+          <span class="comp-icon" style="font-size: 16px;">&#11088;</span>
+          <div class="comp-name">dbt-canonical-pipeline</div>
+          <div class="comp-detail">431 models &bull; 8 jobs<br/>3 schedules &bull; Sensor</div>
+          <span class="port-badge">:4004</span>
+        </div>
+        <div class="comp" style="border-color: #9ae6b4;">
+          <span class="comp-icon" style="font-size: 16px;">&#128200;</span>
+          <div class="comp-name">trading_canonical</div>
+          <div class="comp-detail">Trading model</div>
+          <span class="port-badge">:4000</span>
+        </div>
+        <div class="comp" style="border-color: #9ae6b4;">
+          <span class="comp-icon" style="font-size: 16px;">&#9881;</span>
+          <div class="comp-name">orchestrator</div>
+          <div class="comp-detail">Workflow orch.</div>
+          <span class="port-badge">:4001</span>
+        </div>
+        <div class="comp" style="border-color: #9ae6b4;">
+          <span class="comp-icon" style="font-size: 16px;">&#128218;</span>
+          <div class="comp-name">ref_data_elt</div>
+          <div class="comp-detail">Reference Data</div>
+          <span class="port-badge">:4002</span>
+        </div>
+        <div class="comp" style="border-color: #9ae6b4;">
+          <span class="comp-icon" style="font-size: 16px;">&#128201;</span>
+          <div class="comp-name">risk_pipeline</div>
+          <div class="comp-detail">Risk calcs</div>
+          <span class="port-badge">:4006</span>
+        </div>
+        <div class="comp" style="border-color: #9ae6b4;">
+          <span class="comp-icon" style="font-size: 16px;">&#127981;</span>
+          <div class="comp-name">data_warehouse</div>
+          <div class="comp-detail">DW pipeline</div>
+          <span class="port-badge">:4007</span>
+        </div>
+      </div>
+      <!-- Pipeline flow strip -->
+      <div class="pipeline-strip">
+        <div class="p-step ps-src">tables<br/>97</div>
+        <span class="p-arrow">&rarr;</span>
+        <div class="p-step ps-vd">vdata<br/>97</div>
+        <span class="p-arrow">&rarr;</span>
+        <div class="p-step ps-dim">dims<br/>26</div>
+        <span class="p-arrow">&rarr;</span>
+        <div class="p-step ps-fct">facts<br/>50</div>
+        <span class="p-arrow">&rarr;</span>
+        <div class="p-step ps-vw">views<br/>161</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="env-badges">
+    <span class="env-badge env-dev">DEV</span>
+    <span class="env-badge env-qa">QA</span>
+    <span class="env-badge env-pre">PREPROD</span>
+    <span class="env-badge env-prod">PROD</span>
+    <span class="env-badge env-dr">DR</span>
+  </div>
+</div>
+
+<div class="flow-arrow">&#8595; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &#8595;</div>
+<div class="flow-label" style="display: flex; justify-content: space-around; padding: 0 80px;">
+  <span>Dremio Arrow Flight (SSL :9047)</span>
+  <span>Logs, Email Alerts, Validation Reports</span>
+</div>
+
+<!-- Row 3: Data Lakehouse + Monitoring -->
+<div class="row">
+  <div class="zone zone-lakehouse">
+    <div class="zone-label">Data Lakehouse</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+      <div class="comp" style="border-color: #fbd38d;">
+        <span class="comp-icon">&#9889;</span>
+        <div class="comp-name">Dremio</div>
+        <div class="comp-detail">Query Engine<br/>SQL Server Connector<br/>Arrow Flight (SSL :9047)</div>
+      </div>
+      <div class="comp" style="border-color: #fbd38d;">
+        <span class="comp-icon">&#129482;</span>
+        <div class="comp-name">Apache Iceberg</div>
+        <div class="comp-detail">Table Format<br/>ACID &bull; Time-travel<br/>Schema Evolution</div>
+      </div>
+      <div class="comp" style="border-color: #fbd38d;">
+        <span class="comp-icon">&#128230;</span>
+        <div class="comp-name">S3 Object Storage</div>
+        <div class="comp-detail">Iceberg Data Files<br/>Parquet Format<br/>Partitioned</div>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 8px; font-size: 8px; color: #718096;">
+      Schemas: <strong>materialize</strong> (Iceberg tables) &bull; <strong>canonical.v4.dims</strong> &bull; <strong>canonical.v4.facts</strong> (views)
+    </div>
+  </div>
+  <div class="zone zone-monitoring">
+    <div class="zone-label">Observability</div>
+    <div class="flex-col">
+      <div class="comp" style="border-color: #fc8181;">
+        <span class="comp-icon" style="font-size: 16px;">&#128196;</span>
+        <div class="comp-name">Compute Logs</div>
+        <div class="comp-detail">/apps/dagster/logs</div>
+      </div>
+      <div class="comp" style="border-color: #fc8181;">
+        <span class="comp-icon" style="font-size: 16px;">&#128231;</span>
+        <div class="comp-name">Email Alerts</div>
+        <div class="comp-detail">Failure Sensor &bull; SMTP :25<br/>9 recipients</div>
+      </div>
+      <div class="comp" style="border-color: #fc8181;">
+        <span class="comp-icon" style="font-size: 16px;">&#128270;</span>
+        <div class="comp-name">Test Harness</div>
+        <div class="comp-detail">Row count validation<br/>HTML/JSON &bull; 10:00 &amp; 18:00</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <strong>Pluto Canonical Pipeline</strong> &mdash; Dagster 1.12.21 &bull; dbt-core 1.10.20 &bull; Dremio &bull; Apache Iceberg &bull; S3 &bull; PostgreSQL 15 &bull; Kubernetes (Rancher) &bull; GitLab CI &bull; Helm
+</div>
+
+</body>
+</html>
